@@ -438,8 +438,11 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
   
   // Handle right click for context menu
   const handleContextMenu = (e: React.MouseEvent) => {
-    if (item.type === 'trash' || item.type === 'computer') {
-      return; // Don't show context menu for trash or computer
+    // Don't show context menu for system files (trash, computer, terminal)
+    // Also check for default items by ID to ensure they're not modifiable
+    if (item.type === 'trash' || item.type === 'computer' || item.type === 'terminal' || 
+        item.id === 'computer-1' || item.id === 'folder-1' || item.id === 'terminal-1' || item.id === 'trash-1') {
+      return; 
     }
     
     e.preventDefault();
@@ -458,6 +461,13 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
       return;
     }
     
+    // Check if this is a system file (shouldn't be renamable)
+    const systemItemIds = ['computer-1', 'folder-1', 'terminal-1', 'trash-1'];
+    if (systemItemIds.includes(item.id)) {
+      setIsRenaming(false);
+      return;
+    }
+    
     if (newName.trim() && newName !== item.name) {
       updateItemName(item.id, newName.trim());
     }
@@ -471,6 +481,13 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
   };
 
   const handleRenameAction = () => {
+    // Check if this is a system file (shouldn't be renamable)
+    const systemItemIds = ['computer-1', 'folder-1', 'terminal-1', 'trash-1'];
+    if (systemItemIds.includes(item.id)) {
+      setContextMenu({ ...contextMenu, show: false });
+      return;
+    }
+    
     setContextMenu({ ...contextMenu, show: false });
     setIsRenaming(true);
     setNewName(item.name);
@@ -491,8 +508,12 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
   
   const confirmDelete = () => {
     if (window.itemToDelete) {
-      // Move to buffer instead of permanent delete
-      useStore.getState().moveToBuffer(window.itemToDelete);
+      // Check if the item is a system file before deleting
+      const systemItemIds = ['computer-1', 'folder-1', 'terminal-1', 'trash-1'];
+      if (!systemItemIds.includes(window.itemToDelete)) {
+        // Move to buffer instead of permanent delete
+        useStore.getState().moveToBuffer(window.itemToDelete);
+      }
       window.itemToDelete = undefined;
     }
     setShowDeleteConfirm(false);
