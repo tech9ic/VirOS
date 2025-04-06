@@ -18,6 +18,37 @@
   }
 }
 
+/* Minimal design system overrides */
+@layer components {
+  .ticket-card {
+    @apply relative bg-white border-l-4 shadow-sm transition-all;
+  }
+  
+  .ticket-solved {
+    @apply border-l-primary;
+  }
+  
+  .ticket-unsolved {
+    @apply border-l-accent;
+  }
+  
+  .minimal-input {
+    @apply border-0 border-b border-gray-200 rounded-none px-0 py-2 focus:border-primary focus:ring-0;
+  }
+  
+  .minimal-select {
+    @apply border-0 border-b border-gray-200 rounded-none px-0 py-2;
+  }
+  
+  .minimal-btn {
+    @apply bg-transparent hover:bg-primary/5 text-primary border-0 rounded-none px-3 py-2 flex items-center gap-2 transition-colors;
+  }
+  
+  .minimal-btn-primary {
+    @apply bg-primary text-white hover:bg-primary/90 rounded-none;
+  }
+}
+
 /* Custom animations with minimal impact */
 @layer utilities {
   .animate-fade-in {

@@ -1,5 +1,6 @@
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import * as Checkbox from '@radix-ui/react-checkbox';
+import * as Tooltip from '@radix-ui/react-tooltip';
+import { CheckIcon } from 'lucide-react';
 import { Ticket } from '@shared/schema';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
@@ -41,33 +42,58 @@ export default function TicketCard({ ticket, formattedTime }: TicketCardProps) {
   };
 
   return (
-    <Card 
+    <div 
       className={cn(
-        "rounded-lg shadow-sm overflow-hidden border-l-4",
-        ticket.status === 'solved' ? "border-primary" : "border-accent"
+        "ticket-card",
+        ticket.status === 'solved' ? "ticket-solved" : "ticket-unsolved"
       )}
     >
-      <div className="p-5">
-        <div className="flex justify-between items-start mb-3">
-          <h3 className="font-semibold text-lg text-neutral-dark">{ticket.title}</h3>
-          <Badge 
-            className={cn(
-              "px-2 py-1 text-xs font-medium rounded-full",
-              ticket.status === 'solved' 
-                ? "bg-primary/10 text-primary cursor-pointer"
-                : "bg-accent/10 text-accent cursor-pointer"
-            )}
-            onClick={toggleStatus}
-          >
-            {ticket.status === 'solved' ? 'Solved' : 'Unsolved'}
-          </Badge>
+      <div className="p-4">
+        <div className="flex justify-between items-start mb-3 gap-2">
+          <h3 className="font-medium text-neutral-dark">{ticket.title}</h3>
+          
+          <Tooltip.Provider>
+            <Tooltip.Root>
+              <Tooltip.Trigger asChild>
+                <div className="relative top-1">
+                  <Checkbox.Root
+                    className={cn(
+                      "flex h-5 w-5 items-center justify-center border transition-colors",
+                      ticket.status === 'solved' 
+                        ? "border-primary bg-primary/10" 
+                        : "border-gray-300 bg-transparent"
+                    )}
+                    checked={ticket.status === 'solved'}
+                    onCheckedChange={toggleStatus}
+                    disabled={updateStatusMutation.isPending}
+                  >
+                    <Checkbox.Indicator>
+                      <CheckIcon className="h-3.5 w-3.5 text-primary" />
+                    </Checkbox.Indicator>
+                  </Checkbox.Root>
+                </div>
+              </Tooltip.Trigger>
+              <Tooltip.Portal>
+                <Tooltip.Content 
+                  className="z-50 overflow-hidden rounded-sm bg-slate-900 px-3 py-1.5 text-xs text-white animate-fade-in"
+                  side="top"
+                  sideOffset={5}
+                >
+                  Mark as {ticket.status === 'solved' ? 'unsolved' : 'solved'}
+                  <Tooltip.Arrow className="fill-slate-900" />
+                </Tooltip.Content>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          </Tooltip.Provider>
         </div>
+        
         <p className="text-gray-600 mb-4 text-sm">{ticket.description}</p>
+        
         <div className="flex justify-between items-center text-xs text-gray-500">
-          <span>{ticket.category}</span>
+          <span className="capitalize">{ticket.category}</span>
           <span>{formattedTime}</span>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }

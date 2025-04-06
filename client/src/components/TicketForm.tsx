@@ -3,13 +3,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { insertTicketSchema } from '@shared/schema';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import * as RadixSelect from '@radix-ui/react-select';
 import { Button } from '@/components/ui/button';
+import { ChevronDownIcon, ChevronUpIcon, SendIcon } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 // Extend the insert schema with validation rules
 const ticketFormSchema = insertTicketSchema.extend({
@@ -64,11 +65,11 @@ export default function TicketForm() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6 sticky top-8">
-      <h2 className="text-xl font-semibold mb-4 text-neutral-dark">Create a Ticket</h2>
+    <div className="bg-white p-6 sticky top-8 border-l border-t border-r border-gray-100">
+      <h2 className="text-lg font-medium mb-6 text-neutral-dark">Create a Ticket</h2>
       
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormField
             control={form.control}
             name="title"
@@ -76,9 +77,9 @@ export default function TicketForm() {
               <FormItem>
                 <FormLabel className="text-sm font-medium text-neutral-dark">Title</FormLabel>
                 <FormControl>
-                  <Input 
+                  <input 
                     placeholder="What's your issue?" 
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    className="minimal-input w-full"
                     {...field} 
                   />
                 </FormControl>
@@ -96,8 +97,7 @@ export default function TicketForm() {
                 <FormControl>
                   <Textarea 
                     placeholder="Provide details..." 
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
-                    rows={4}
+                    className="min-h-24 resize-none border-0 focus:ring-0 p-0 shadow-none text-sm"
                     {...field} 
                   />
                 </FormControl>
@@ -112,22 +112,50 @@ export default function TicketForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium text-neutral-dark">Category</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
+                <RadixSelect.Root value={field.value} onValueChange={field.onChange}>
                   <FormControl>
-                    <SelectTrigger className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50">
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
+                    <RadixSelect.Trigger className="inline-flex items-center justify-between minimal-select w-full text-sm">
+                      <RadixSelect.Value placeholder="Select a category" />
+                      <RadixSelect.Icon>
+                        <ChevronDownIcon className="h-4 w-4 opacity-50" />
+                      </RadixSelect.Icon>
+                    </RadixSelect.Trigger>
                   </FormControl>
-                  <SelectContent>
-                    <SelectItem value="question">Question</SelectItem>
-                    <SelectItem value="issue">Issue</SelectItem>
-                    <SelectItem value="suggestion">Suggestion</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <RadixSelect.Portal>
+                    <RadixSelect.Content 
+                      position="popper" 
+                      className="overflow-hidden bg-white rounded-sm shadow-md border border-gray-100 min-w-[8rem] animate-fade-in"
+                    >
+                      <RadixSelect.ScrollUpButton className="flex items-center justify-center h-6 bg-white text-gray-700 cursor-default">
+                        <ChevronUpIcon />
+                      </RadixSelect.ScrollUpButton>
+                      <RadixSelect.Viewport className="p-1">
+                        <RadixSelect.Group>
+                          {[
+                            { value: 'question', label: 'Question' },
+                            { value: 'issue', label: 'Issue' },
+                            { value: 'suggestion', label: 'Suggestion' },
+                            { value: 'other', label: 'Other' }
+                          ].map((option) => (
+                            <RadixSelect.Item
+                              key={option.value}
+                              value={option.value}
+                              className={cn(
+                                "relative flex items-center px-6 py-2 text-sm rounded-sm select-none",
+                                "data-[highlighted]:outline-none data-[highlighted]:bg-gray-50 data-[state=checked]:font-medium"
+                              )}
+                            >
+                              <RadixSelect.ItemText>{option.label}</RadixSelect.ItemText>
+                            </RadixSelect.Item>
+                          ))}
+                        </RadixSelect.Group>
+                      </RadixSelect.Viewport>
+                      <RadixSelect.ScrollDownButton className="flex items-center justify-center h-6 bg-white text-gray-700 cursor-default">
+                        <ChevronDownIcon />
+                      </RadixSelect.ScrollDownButton>
+                    </RadixSelect.Content>
+                  </RadixSelect.Portal>
+                </RadixSelect.Root>
                 <FormMessage />
               </FormItem>
             )}
@@ -135,10 +163,15 @@ export default function TicketForm() {
           
           <Button 
             type="submit" 
-            className="w-full bg-primary text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition duration-200"
+            className="minimal-btn-primary w-full flex justify-center gap-2"
             disabled={createTicketMutation.isPending}
           >
-            {createTicketMutation.isPending ? 'Posting...' : 'Post Ticket'}
+            {createTicketMutation.isPending ? 'Posting...' : (
+              <>
+                <SendIcon className="h-4 w-4" />
+                <span>Post Ticket</span>
+              </>
+            )}
           </Button>
         </form>
       </Form>
