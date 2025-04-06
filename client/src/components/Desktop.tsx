@@ -7,8 +7,33 @@ import { Position, DesktopItem } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import { FolderIcon, FileTextIcon, TerminalIcon } from 'lucide-react';
 
+// Extend Window interface to include our custom property
+declare global {
+  interface Window {
+    itemToDelete?: string;
+  }
+}
+
 const Desktop = () => {
-  const { items, updateItemPosition, windows, logout, addItem } = useStore();
+  const { items, updateItemPosition, windows, logout, addItem, openWindow } = useStore();
+  
+  // Terminal content for opening from the top bar
+  const terminalContent = (
+    <div className="p-4 font-mono text-white bg-black h-full flex flex-col">
+      <div className="border-b border-zinc-800 pb-2 mb-4 flex justify-between items-center">
+        <h3 className="text-sm font-medium">Terminal</h3>
+      </div>
+      <div className="flex-1 bg-zinc-900 p-2 overflow-y-auto font-mono text-xs text-green-500">
+        <div className="mb-1">Last login: {new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}</div>
+        <div className="mb-1">Terminal OS [Version 1.0.0]</div>
+        <div className="mb-3">(c) 2025 Terminal Corporation. All rights reserved.</div>
+        <div className="flex items-start mb-1">
+          <span className="mr-2 text-white">user@terminal:~$</span>
+          <span className="inline-block animate-blink">▌</span>
+        </div>
+      </div>
+    </div>
+  );
   const [contextMenu, setContextMenu] = useState<{ show: boolean; position: Position }>({
     show: false,
     position: { x: 0, y: 0 },
@@ -132,9 +157,15 @@ const Desktop = () => {
       ref={drop} 
       onContextMenu={handleContextMenu}
     >
-      {/* Top status bar */}
-      <div className="absolute top-0 left-0 right-0 h-8 bg-black flex justify-between items-center px-4 z-10 border-b border-zinc-800">
-        <div className="flex items-center text-white text-xs">
+      {/* Top status bar - only responds to left clicks */}
+      <div 
+        className="absolute top-0 left-0 right-0 h-8 bg-black flex justify-between items-center px-4 z-10 border-b border-zinc-800"
+        onContextMenu={(e) => e.preventDefault()} // Prevent right-click context menu
+      >
+        <div 
+          className="flex items-center text-white text-xs cursor-pointer" 
+          onClick={() => openWindow('Terminal', terminalContent)}
+        >
           <TerminalIcon size={14} className="mr-1" strokeWidth={1} />
           <span className="opacity-70">_</span>
         </div>

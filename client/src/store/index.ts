@@ -61,6 +61,13 @@ const defaultItems: DesktopItem[] = [
     type: 'terminal',
     position: { x: 15, y: 55 },
     created: new Date(),
+  },
+  {
+    id: 'trash-1',
+    name: 'Recycle Bin',
+    type: 'trash',
+    position: { x: 15, y: 75 },
+    created: new Date(),
   }
 ];
 
