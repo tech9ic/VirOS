@@ -2,6 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  /* Sticky note styles for ticket cards */
+  .sticky-note {
+    @apply relative bg-yellow-100 border border-yellow-200 shadow-md transform transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg;
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(0, 0, 0, 0.05) 19px, rgba(0, 0, 0, 0.05) 20px);
+  }
+  
+  .sticky-note::before {
+    content: '';
+    @apply absolute top-0 left-0 right-0 h-5 bg-yellow-200/70;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 70%);
+  }
+  
+  /* Add pencil wall texture to the background */
+  .pencil-wall-bg {
+    background-color: #f8f8f8;
+    background-image: 
+      linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  /* Minimal form inputs with Apple-like styling */
+  .minimal-input {
+    @apply px-3 py-2 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-200 bg-[#f5f5f7] text-black placeholder:text-gray-400;
+  }
+  
+  .minimal-select {
+    @apply px-3 py-2 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-200 bg-[#f5f5f7] text-black;
+  }
+  
+  .minimal-btn-primary {
+    @apply bg-black hover:bg-gray-800 text-white rounded-md transform transition-transform hover:-translate-y-0.5;
+  }
+}
+
 @layer base {
   * {
     @apply border-border;

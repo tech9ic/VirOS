@@ -2,82 +2,18 @@ import { useState } from 'react';
 import TicketForm from '@/components/TicketForm';
 import TicketWall from '@/components/TicketWall';
 import MobileTicketForm from '@/components/MobileTicketForm';
-import { PlusIcon, LogOut } from 'lucide-react';
+import { PlusIcon } from 'lucide-react';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { useAuth } from '@/hooks/use-auth';
-import { Button } from '@/components/ui/button';
+import Navbar from '@/components/Navbar';
+import PencilWallBackground from '@/components/PencilWallBackground';
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { user, logoutMutation } = useAuth();
 
   return (
-    <div className="font-sans bg-white min-h-screen">
-      {/* Header */}
-      <header className="border-b border-gray-100 sticky top-0 bg-white/90 backdrop-blur-sm z-10">
-        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-          <h1 className="text-lg font-medium text-neutral-dark">Ticket Wall</h1>
-          
-          <div className="flex items-center gap-4">
-            {/* Username display */}
-            <span className="text-sm text-muted-foreground hidden md:block">
-              Welcome, {user?.username}
-            </span>
-            
-            {/* Logout button */}
-            <Tooltip.Provider>
-              <Tooltip.Root>
-                <Tooltip.Trigger asChild>
-                  <Button 
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => logoutMutation.mutate()}
-                    disabled={logoutMutation.isPending}
-                    aria-label="Logout"
-                  >
-                    <LogOut className="h-4 w-4" />
-                  </Button>
-                </Tooltip.Trigger>
-                <Tooltip.Portal>
-                  <Tooltip.Content 
-                    className="z-50 overflow-hidden rounded-sm bg-slate-900 px-3 py-1.5 text-xs text-white animate-fade-in"
-                    side="bottom"
-                    sideOffset={5}
-                  >
-                    Logout
-                    <Tooltip.Arrow className="fill-slate-900" />
-                  </Tooltip.Content>
-                </Tooltip.Portal>
-              </Tooltip.Root>
-            </Tooltip.Provider>
-            
-            {/* Mobile ticket creation button */}
-            <Tooltip.Provider>
-              <Tooltip.Root>
-                <Tooltip.Trigger asChild>
-                  <button 
-                    onClick={() => setIsModalOpen(true)}
-                    className="minimal-btn-primary p-2 md:hidden"
-                    aria-label="Create new ticket"
-                  >
-                    <PlusIcon className="h-4 w-4" />
-                  </button>
-                </Tooltip.Trigger>
-                <Tooltip.Portal>
-                  <Tooltip.Content 
-                    className="z-50 overflow-hidden rounded-sm bg-slate-900 px-3 py-1.5 text-xs text-white animate-fade-in"
-                    side="bottom"
-                    sideOffset={5}
-                  >
-                    Create ticket
-                    <Tooltip.Arrow className="fill-slate-900" />
-                  </Tooltip.Content>
-                </Tooltip.Portal>
-              </Tooltip.Root>
-            </Tooltip.Provider>
-          </div>
-        </div>
-      </header>
+    <div className="font-sans min-h-screen pencil-wall-bg">
+      <PencilWallBackground />
+      <Navbar />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6 md:grid md:grid-cols-12 md:gap-8">
@@ -91,6 +27,33 @@ export default function Home() {
           <TicketWall />
         </section>
       </main>
+
+      {/* Mobile ticket creation button */}
+      <div className="fixed bottom-4 right-4 md:hidden z-10">
+        <Tooltip.Provider>
+          <Tooltip.Root>
+            <Tooltip.Trigger asChild>
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                className="minimal-btn-primary p-3 rounded-full shadow-lg"
+                aria-label="Raise It!"
+              >
+                <PlusIcon className="h-6 w-6" />
+              </button>
+            </Tooltip.Trigger>
+            <Tooltip.Portal>
+              <Tooltip.Content 
+                className="z-50 overflow-hidden rounded-sm bg-slate-900 px-3 py-1.5 text-xs text-white animate-fade-in"
+                side="top"
+                sideOffset={5}
+              >
+                Raise It!
+                <Tooltip.Arrow className="fill-slate-900" />
+              </Tooltip.Content>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </Tooltip.Provider>
+      </div>
 
       {/* Mobile Ticket Form Dialog */}
       <MobileTicketForm isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />

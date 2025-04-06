@@ -6,7 +6,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Textarea } from '@/components/ui/textarea';
 import * as RadixSelect from '@radix-ui/react-select';
 import { Button } from '@/components/ui/button';
-import { ChevronDownIcon, ChevronUpIcon, SendIcon, TagIcon } from 'lucide-react';
+import { ChevronDownIcon, ChevronUpIcon, SendIcon, TagIcon, PlusCircleIcon } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -244,8 +244,8 @@ export default function TicketForm() {
                 </div>
               ) : (
                 <>
-                  <SendIcon className="h-4 w-4" />
-                  <span>Post New Thread</span>
+                  <PlusCircleIcon className="h-4 w-4" />
+                  <span>Raise It!</span>
                 </>
               )}
             </Button>

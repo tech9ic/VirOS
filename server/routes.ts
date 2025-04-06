@@ -434,6 +434,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch tickets by progress" });
     }
   });
+  
+  // Get tickets created by the current user
+  app.get("/api/tickets/user", apiRateLimiter, async (req: Request, res: Response) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      const userTickets = await dbStorage.getTicketsByUser(req.user!.id);
+      res.json(userTickets);
+    } catch (error) {
+      console.error("Error fetching user tickets:", error);
+      res.status(500).json({ message: "Failed to fetch user tickets" });
+    }
+  });
+  
+  // Get tags created by the current user
+  app.get("/api/user/tags", apiRateLimiter, async (req: Request, res: Response) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      const userTags = await dbStorage.getUserCreatedTags(req.user!.id);
+      res.json(userTags);
+    } catch (error) {
+      console.error("Error fetching user tags:", error);
+      res.status(500).json({ message: "Failed to fetch user tags" });
+    }
+  });
 
   // User preferences
   app.get("/api/user/preferences", apiRateLimiter, async (req: Request, res: Response) => {
@@ -599,20 +629,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // User-created tags
-  app.get("/api/user/tags", apiRateLimiter, async (req: Request, res: Response) => {
-    try {
-      if (!req.isAuthenticated()) {
-        return res.status(401).json({ message: "Not authenticated" });
-      }
-      
-      const tags = await dbStorage.getUserCreatedTags(req.user!.id);
-      res.json(tags);
-    } catch (error) {
-      console.error("Error fetching user-created tags:", error);
-      res.status(500).json({ message: "Failed to fetch user-created tags" });
-    }
-  });
+
 
   const httpServer = createServer(app);
 
