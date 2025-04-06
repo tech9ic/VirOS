@@ -108,28 +108,28 @@ const defaultItems: DesktopItem[] = [
     id: 'computer-1',
     name: 'System',
     type: 'computer',
-    position: { x: 15, y: 15 },
+    position: { x: 5, y: 15 },
     created: new Date(),
   },
   {
     id: 'folder-1',
     name: 'Documents',
     type: 'folder',
-    position: { x: 15, y: 35 },
+    position: { x: 5, y: 35 },
     created: new Date(),
   },
   {
     id: 'terminal-1',
     name: 'Terminal',
     type: 'terminal',
-    position: { x: 15, y: 55 },
+    position: { x: 5, y: 55 },
     created: new Date(),
   },
   {
     id: 'trash-1',
     name: 'Buffer',
     type: 'trash',
-    position: { x: 15, y: 75 },
+    position: { x: 5, y: 75 },
     created: new Date(),
   }
 ];
@@ -276,6 +276,13 @@ export const useStore = create<State>()(
       
       // Buffer management
       moveToBuffer: (id) => {
+        // Don't allow system files to be moved to buffer
+        const systemItemIds = ['computer-1', 'folder-1', 'terminal-1', 'trash-1'];
+        if (systemItemIds.includes(id)) {
+          console.warn('System files cannot be moved to buffer');
+          return;
+        }
+        
         // Push into buffer
         const item = get().items.find((item) => item.id === id);
         if (!item) return;

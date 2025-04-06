@@ -34,6 +34,13 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
     accept: 'DESKTOP_ITEM',
     drop: (droppedItem: { id: string, type: string }) => {
       if (item.type === 'trash' && droppedItem.id !== item.id) {
+        // Check if the item is a system file (shouldn't be deletable)
+        const systemItemIds = ['computer-1', 'folder-1', 'terminal-1', 'trash-1'];
+        if (systemItemIds.includes(droppedItem.id)) {
+          alert("System files cannot be moved to Buffer.");
+          return;
+        }
+        
         // Move the item to buffer directly
         const state = useStore.getState();
         const droppedItemObject = state.items.find(i => i.id === droppedItem.id);
