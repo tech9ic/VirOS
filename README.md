@@ -134,7 +134,7 @@ We provide Docker support for easy deployment:
 
    ```bash
    docker run -p 3000:3000 \
-     -e DATABASE_URL=postgresql://username:password@host.docker.internal:5432/terminal_os \
+     -e DATABASE_URL=postgresql://username:password@host.docker.internal:5432/viros \
      viros
    ```
 
