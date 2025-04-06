@@ -2,8 +2,9 @@ import { useState, useRef, useEffect } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { useStore } from '../store';
 import { DesktopItem } from '../types';
-import { FolderIcon, MonitorIcon, FileTextIcon, FileIcon, TrashIcon, TerminalIcon, Edit3Icon, Trash2Icon, ImageIcon, RefreshCcwIcon } from 'lucide-react';
+import { FolderIcon, MonitorIcon, FileTextIcon, FileIcon, TrashIcon, TerminalIcon, Edit3Icon, Trash2Icon, ImageIcon, RefreshCcwIcon, CpuIcon } from 'lucide-react';
 import TerminalWindow from './TerminalWindow';
+import Portfolio from './Portfolio';
 
 interface DesktopIconProps {
   item: DesktopItem;
@@ -35,7 +36,7 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
     drop: (droppedItem: { id: string, type: string }) => {
       if (item.type === 'trash' && droppedItem.id !== item.id) {
         // Check if the item is a system file (shouldn't be deletable)
-        const systemItemIds = ['computer-1', 'folder-1', 'terminal-1', 'trash-1'];
+        const systemItemIds = ['computer-1', 'folder-1', 'terminal-1', 'trash-1', 'bibhu-1'];
         if (systemItemIds.includes(droppedItem.id)) {
           alert("System files cannot be moved to Buffer.");
           return;
@@ -382,6 +383,25 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
           <TerminalWindow username={useStore.getState().user?.username || 'guest'} />
         );
         break;
+      case 'executable':
+        // Special handling for bibhu.exe - the portfolio component
+        if (item.id === 'bibhu-1') {
+          content = (
+            <Portfolio />
+          );
+        } else {
+          content = (
+            <div className="p-4 font-mono text-white bg-black h-full">
+              <div className="border-b border-zinc-800 pb-2 mb-4">
+                <h3 className="text-sm font-medium">{item.name}</h3>
+              </div>
+              <div className="flex items-center justify-center h-32 text-zinc-600">
+                <p className="text-xs">Error: Cannot execute unknown application</p>
+              </div>
+            </div>
+          );
+        }
+        break;
       default:
         content = (
           <div className="p-4 font-mono text-white bg-black h-full">
@@ -418,6 +438,8 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
         return <TrashIcon size={28} className={isOver ? "text-red-400" : iconColor} strokeWidth={1} />;
       case 'terminal':
         return <TerminalIcon size={28} className={iconColor} strokeWidth={1} />;
+      case 'executable':
+        return <CpuIcon size={28} className={`${iconColor} text-lime-500`} strokeWidth={1} />;
       case 'app':
         return <FileIcon size={28} className={iconColor} strokeWidth={1} />;
       default:
@@ -445,10 +467,10 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
   
   // Handle right click for context menu
   const handleContextMenu = (e: React.MouseEvent) => {
-    // Don't show context menu for system files (trash, computer, terminal)
+    // Don't show context menu for system files (trash, computer, terminal, executable)
     // Also check for default items by ID to ensure they're not modifiable
-    if (item.type === 'trash' || item.type === 'computer' || item.type === 'terminal' || 
-        item.id === 'computer-1' || item.id === 'folder-1' || item.id === 'terminal-1' || item.id === 'trash-1') {
+    if (item.type === 'trash' || item.type === 'computer' || item.type === 'terminal' || item.type === 'executable' || 
+        item.id === 'computer-1' || item.id === 'folder-1' || item.id === 'terminal-1' || item.id === 'trash-1' || item.id === 'bibhu-1') {
       return; 
     }
     
@@ -469,7 +491,7 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
     }
     
     // Check if this is a system file (shouldn't be renamable)
-    const systemItemIds = ['computer-1', 'folder-1', 'terminal-1', 'trash-1'];
+    const systemItemIds = ['computer-1', 'folder-1', 'terminal-1', 'trash-1', 'bibhu-1'];
     if (systemItemIds.includes(item.id)) {
       setIsRenaming(false);
       return;
@@ -489,7 +511,7 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
 
   const handleRenameAction = () => {
     // Check if this is a system file (shouldn't be renamable)
-    const systemItemIds = ['computer-1', 'folder-1', 'terminal-1', 'trash-1'];
+    const systemItemIds = ['computer-1', 'folder-1', 'terminal-1', 'trash-1', 'bibhu-1'];
     if (systemItemIds.includes(item.id)) {
       setContextMenu({ ...contextMenu, show: false });
       return;
@@ -516,7 +538,7 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
   const confirmDelete = () => {
     if (window.itemToDelete) {
       // Check if the item is a system file before deleting
-      const systemItemIds = ['computer-1', 'folder-1', 'terminal-1', 'trash-1'];
+      const systemItemIds = ['computer-1', 'folder-1', 'terminal-1', 'trash-1', 'bibhu-1'];
       if (!systemItemIds.includes(window.itemToDelete)) {
         // Move to buffer instead of permanent delete
         useStore.getState().moveToBuffer(window.itemToDelete);

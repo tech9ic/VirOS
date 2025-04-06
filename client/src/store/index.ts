@@ -113,7 +113,7 @@ const defaultItems: DesktopItem[] = [
   },
   {
     id: 'folder-1',
-    name: 'Documents',
+    name: 'Projects',
     type: 'folder',
     position: { x: 2, y: 25 },
     created: new Date(),
@@ -126,10 +126,17 @@ const defaultItems: DesktopItem[] = [
     created: new Date(),
   },
   {
+    id: 'bibhu-1',
+    name: 'bibhu.exe',
+    type: 'executable',
+    position: { x: 2, y: 55 },
+    created: new Date(),
+  },
+  {
     id: 'trash-1',
     name: 'Buffer',
     type: 'trash',
-    position: { x: 2, y: 55 },
+    position: { x: 2, y: 70 },
     created: new Date(),
   }
 ];
@@ -277,7 +284,7 @@ export const useStore = create<State>()(
       // Buffer management
       moveToBuffer: (id) => {
         // Don't allow system files to be moved to buffer
-        const systemItemIds = ['computer-1', 'folder-1', 'terminal-1', 'trash-1'];
+        const systemItemIds = ['computer-1', 'folder-1', 'terminal-1', 'trash-1', 'bibhu-1'];
         if (systemItemIds.includes(id)) {
           console.warn('System files cannot be moved to buffer');
           return;
