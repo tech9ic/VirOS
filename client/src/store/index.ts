@@ -3,6 +3,51 @@ import { persist } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
 import { DesktopItem, User, Window } from '../types';
 
+// Storage management utilities
+const MAX_STORAGE_SIZE = 4.5 * 1024 * 1024; // 4.5MB limit to be safe (localStorage is typically 5MB)
+
+function getStorageSize() {
+  let total = 0;
+  for (let key in localStorage) {
+    if (localStorage.hasOwnProperty(key)) {
+      total += (localStorage[key].length * 2); // Approximate size in bytes
+    }
+  }
+  return total;
+}
+
+function isStorageAlmostFull() {
+  return getStorageSize() > (MAX_STORAGE_SIZE * 0.8); // 80% of maximum
+}
+
+function isStorageFull() {
+  return getStorageSize() > (MAX_STORAGE_SIZE * 0.95); // 95% of maximum
+}
+
+// Safe storage update function
+function safeStorageUpdate(updateFn: () => void): boolean {
+  try {
+    // Check if we're close to the quota
+    if (isStorageFull()) {
+      alert("Storage is almost full. Try emptying the Buffer or removing some files.");
+      return false;
+    }
+    
+    // Attempt the update
+    updateFn();
+    return true;
+  } catch (error) {
+    // Handle quota exceeded errors
+    if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+      alert("Storage quota exceeded. Try emptying the Buffer or removing some files.");
+    } else {
+      console.error("Storage error:", error);
+      alert("An error occurred while saving data. Try emptying the Buffer or removing some files.");
+    }
+    return false;
+  }
+}
+
 interface State {
   // User state
   user: User | null;
@@ -122,18 +167,30 @@ export const useStore = create<State>()(
       bufferItems: [],
       addItem: (item) => {
         const id = uuidv4();
-        set((state) => ({
-          items: [
-            ...state.items,
-            {
-              ...item,
-              id,
-              created: new Date(),
-              parentId: null, // Default to desktop
-            },
-          ],
-        }));
-        return id;
+        
+        // Check storage before adding
+        if (isStorageAlmostFull()) {
+          const proceed = window.confirm("Storage is getting full. This may cause issues. Would you like to empty the Buffer first?");
+          if (proceed) {
+            set({ bufferItems: [] });
+          }
+        }
+        
+        const success = safeStorageUpdate(() => {
+          set((state) => ({
+            items: [
+              ...state.items,
+              {
+                ...item,
+                id,
+                created: new Date(),
+                parentId: null, // Default to desktop
+              },
+            ],
+          }));
+        });
+        
+        return success ? id : "";
       },
       removeItem: (id) => {
         set((state) => ({
@@ -150,13 +207,22 @@ export const useStore = create<State>()(
         }));
       },
       updateItemContent: (id, content) => {
-        set((state) => ({
-          items: state.items.map((item) =>
-            item.id === id
-              ? { ...item, content }
-              : item
-          ),
-        }));
+        // Handle large content
+        if (content && content.length > 500000) { // ~500KB
+          alert("Content too large. Please try with a smaller file.");
+          return;
+        }
+        
+        // Use safe storage
+        safeStorageUpdate(() => {
+          set((state) => ({
+            items: state.items.map((item) =>
+              item.id === id
+                ? { ...item, content }
+                : item
+            ),
+          }));
+        });
       },
       updateItemName: (id, name) => {
         set((state) => ({
@@ -175,19 +241,31 @@ export const useStore = create<State>()(
       
       addItemToFolder: (item, parentId) => {
         const id = uuidv4();
-        set((state) => ({
-          items: [
-            ...state.items,
-            {
-              ...item,
-              id,
-              created: new Date(),
-              parentId, // Set the parent folder ID
-              position: { x: 20, y: 20 }, // Default position within folder
-            },
-          ],
-        }));
-        return id;
+        
+        // Check storage availability
+        if (isStorageAlmostFull()) {
+          const proceed = window.confirm("Storage is getting full. This may cause issues. Would you like to empty the Buffer first?");
+          if (proceed) {
+            set({ bufferItems: [] });
+          }
+        }
+        
+        const success = safeStorageUpdate(() => {
+          set((state) => ({
+            items: [
+              ...state.items,
+              {
+                ...item,
+                id,
+                created: new Date(),
+                parentId, // Set the parent folder ID
+                position: { x: 20, y: 20 }, // Default position within folder
+              },
+            ],
+          }));
+        });
+        
+        return success ? id : "";
       },
       
       // Buffer management
@@ -235,23 +313,39 @@ export const useStore = create<State>()(
         const highestZIndex = windows.length > 0
           ? Math.max(...windows.map(w => w.zIndex))
           : 0;
-          
-        set((state) => ({
-          windows: [
-            ...state.windows,
-            {
-              id,
-              title,
-              content,
-              position: { x: 50, y: 50 },
-              size: { width, height },
-              isMinimized: false,
-              isMaximized: false,
-              zIndex: highestZIndex + 1,
-            },
-          ],
-        }));
-        return id;
+        
+        // Windows aren't stored in localStorage, so we don't need to check storage space
+        // But we should check if there are too many windows open to prevent memory issues
+        if (windows.length > 10) {
+          // If too many windows, close the oldest one
+          const oldestWindowId = windows[0].id;
+          set((state) => ({
+            windows: state.windows.filter(w => w.id !== oldestWindowId)
+          }));
+        }
+        
+        try {
+          set((state) => ({
+            windows: [
+              ...state.windows,
+              {
+                id,
+                title,
+                content,
+                position: { x: 50, y: 50 },
+                size: { width, height },
+                isMinimized: false,
+                isMaximized: false,
+                zIndex: highestZIndex + 1,
+              },
+            ],
+          }));
+          return id;
+        } catch (error) {
+          console.error("Error opening window:", error);
+          alert("Could not open window. Try closing some windows first.");
+          return "";
+        }
       },
       closeWindow: (id) => {
         set((state) => ({
