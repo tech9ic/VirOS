@@ -1,7 +1,7 @@
 import { useDrag } from 'react-dnd';
 import { useStore } from '../store';
 import { DesktopItem } from '../types';
-import { FolderIcon, MonitorIcon, FileTextIcon, FileIcon, TrashIcon } from 'lucide-react';
+import { FolderIcon, MonitorIcon, FileTextIcon, FileIcon, TrashIcon, TerminalIcon } from 'lucide-react';
 
 interface DesktopIconProps {
   item: DesktopItem;
@@ -10,16 +10,16 @@ interface DesktopIconProps {
 const DesktopIcon = ({ item }: DesktopIconProps) => {
   const { openWindow } = useStore();
 
-  // Setup drag source
+  // Setup drag source with improved handle
   const [{ isDragging }, drag] = useDrag({
     type: 'DESKTOP_ITEM',
-    item: { id: item.id, type: item.type },
+    item: () => ({ id: item.id, type: item.type }),
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
   });
 
-  // Double click handler for opening windows
+  // Double click handler for opening windows with enhanced content
   const handleDoubleClick = () => {
     let content;
     
@@ -32,15 +32,15 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
               <span className="text-xs text-zinc-500">2 items</span>
             </div>
             <div className="grid grid-cols-4 gap-4">
-              {/* Placeholder folder content */}
+              {/* Folder content with interactive hover */}
               <div className="text-center group cursor-pointer hover:opacity-80">
-                <div className="bg-zinc-900 p-3 mb-1 rounded-sm">
+                <div className="bg-zinc-900 p-3 mb-1 rounded-sm group-hover:bg-zinc-800 transition-colors">
                   <FolderIcon className="mx-auto" size={24} strokeWidth={1} />
                 </div>
                 <p className="text-xs truncate text-zinc-400 group-hover:text-white transition-colors">Documents</p>
               </div>
               <div className="text-center group cursor-pointer hover:opacity-80">
-                <div className="bg-zinc-900 p-3 mb-1 rounded-sm">
+                <div className="bg-zinc-900 p-3 mb-1 rounded-sm group-hover:bg-zinc-800 transition-colors">
                   <FileTextIcon className="mx-auto" size={24} strokeWidth={1} />
                 </div>
                 <p className="text-xs truncate text-zinc-400 group-hover:text-white transition-colors">File.txt</p>
@@ -79,6 +79,39 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
           </div>
         );
         break;
+      case 'file':
+        content = (
+          <div className="p-4 font-mono text-white bg-black h-full">
+            <div className="border-b border-zinc-800 pb-2 mb-4">
+              <h3 className="text-sm font-medium">{item.name}</h3>
+            </div>
+            <div className="relative h-64 border border-zinc-800 p-3">
+              <textarea 
+                className="bg-transparent w-full h-full text-xs text-zinc-400 focus:outline-none resize-none"
+                defaultValue={item.content || "Empty file. Start typing..."}
+              ></textarea>
+            </div>
+          </div>
+        );
+        break;
+      case 'terminal':
+        content = (
+          <div className="p-4 font-mono text-white bg-black h-full flex flex-col">
+            <div className="border-b border-zinc-800 pb-2 mb-4 flex justify-between items-center">
+              <h3 className="text-sm font-medium">Terminal</h3>
+            </div>
+            <div className="flex-1 bg-zinc-900 p-2 overflow-y-auto font-mono text-xs text-green-500">
+              <div className="mb-1">Last login: {new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}</div>
+              <div className="mb-1">Terminal OS [Version 1.0.0]</div>
+              <div className="mb-3">(c) 2025 Terminal Corporation. All rights reserved.</div>
+              <div className="flex items-start mb-1">
+                <span className="mr-2 text-white">user@terminal:~$</span>
+                <span className="inline-block animate-blink">▌</span>
+              </div>
+            </div>
+          </div>
+        );
+        break;
       default:
         content = (
           <div className="p-4 font-mono text-white bg-black h-full">
@@ -102,59 +135,52 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
   const renderIcon = () => {
     switch(item.type) {
       case 'folder':
-        return <FolderIcon size={32} className="text-white" strokeWidth={1} />;
+        return <FolderIcon size={28} className="text-white" strokeWidth={1} />;
       case 'computer':
-        return <MonitorIcon size={32} className="text-white" strokeWidth={1} />;
+        return <MonitorIcon size={28} className="text-white" strokeWidth={1} />;
       case 'file':
-        return <FileTextIcon size={32} className="text-white" strokeWidth={1} />;
+        return <FileTextIcon size={28} className="text-white" strokeWidth={1} />;
       case 'trash':
-        return <TrashIcon size={32} className="text-white" strokeWidth={1} />;
+        return <TrashIcon size={28} className="text-white" strokeWidth={1} />;
+      case 'terminal':
+        return <TerminalIcon size={28} className="text-white" strokeWidth={1} />;
       case 'app':
-        return <FileIcon size={32} className="text-white" strokeWidth={1} />;
+        return <FileIcon size={28} className="text-white" strokeWidth={1} />;
       default:
-        return <FileIcon size={32} className="text-white" strokeWidth={1} />;
+        return <FileIcon size={28} className="text-white" strokeWidth={1} />;
     }
   };
 
-  // Position randomly in a grid-like pattern similar to oklama.com
-  // Unless a specific position is already set
-  const isInitialPosition = item.position.x === 20 && (item.position.y === 20 || item.position.y === 120);
-  const randomPosition = () => {
-    if (!isInitialPosition) return item.position;
-    
-    // Generate more oklama-like positions
-    const positions = [
-      { x: Math.floor(Math.random() * 65) + 15, y: Math.floor(Math.random() * 50) + 15 },  // top left
-      { x: Math.floor(Math.random() * 65) + 55, y: Math.floor(Math.random() * 50) + 15 },  // top right
-      { x: Math.floor(Math.random() * 65) + 15, y: Math.floor(Math.random() * 50) + 48 },  // bottom left
-      { x: Math.floor(Math.random() * 65) + 55, y: Math.floor(Math.random() * 50) + 48 },  // bottom right
-    ];
-    
-    // Choose one randomly
-    return positions[Math.floor(Math.random() * positions.length)];
+  // Ensure icon has a position even for new items
+  const position = !item.position ? { x: 20, y: 20 } : item.position;
+
+  // Handle both click and touch events for better mobile support
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.stopPropagation();
   };
-  
-  const position = isInitialPosition ? randomPosition() : item.position;
 
   return (
     <div
       ref={drag}
-      className="flex flex-col items-center justify-center pointer-events-none absolute text-sm"
+      className="flex flex-col items-center justify-center absolute text-sm cursor-move"
       style={{
         opacity: isDragging ? 0.5 : 1,
         top: `${position.y}%`,
         left: `${position.x}%`,
         width: '90px',
+        zIndex: isDragging ? 100 : 1,
         WebkitTouchCallout: 'none',
+        transition: isDragging ? 'none' : 'opacity 0.2s ease',
       }}
       onDoubleClick={handleDoubleClick}
+      onMouseDown={handleMouseDown}
     >
       <div 
-        className="pointer-events-auto rendering-pixelated w-16 h-16 flex items-center justify-center bg-zinc-900 rounded-sm"
+        className="rendering-pixelated w-16 h-16 flex items-center justify-center bg-zinc-900 rounded-sm border border-zinc-800 hover:border-zinc-700 transition-colors shadow-sm"
       >
         {renderIcon()}
       </div>
-      <span className="pointer-events-auto text-center text-white bg-black bg-opacity-80 px-1 text-xs mt-1">
+      <span className="max-w-full text-center text-white bg-black bg-opacity-80 px-1 py-0.5 text-xs mt-1 truncate">
         {item.name}
       </span>
     </div>

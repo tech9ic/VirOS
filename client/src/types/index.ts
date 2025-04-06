@@ -15,14 +15,14 @@ export interface Size {
 }
 
 // Desktop item types
-export type ItemType = 'computer' | 'folder' | 'file' | 'app' | 'trash';
+export type ItemType = 'computer' | 'folder' | 'file' | 'app' | 'trash' | 'terminal';
 
 export interface DesktopItem {
   id: string;
   name: string;
   type: ItemType;
   position: Position;
-  created: Date;
+  created?: Date;  // Make created optional to support new item creation
   content?: string;
   iconSrc?: string;
 }

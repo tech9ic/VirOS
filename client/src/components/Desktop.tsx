@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useDrop } from 'react-dnd';
 import { useStore } from '../store';
 import DesktopIcon from './DesktopIcon';
 import WindowManager from './WindowManager';
 import TaskBar from './TaskBar';
-import { Position } from '../types';
+import { Position, DesktopItem } from '../types';
+import { v4 as uuidv4 } from 'uuid';
+import { FolderIcon, FileTextIcon } from 'lucide-react';
 
 const Desktop = () => {
-  const { items, updateItemPosition, windows, logout } = useStore();
+  const { items, updateItemPosition, windows, logout, addItem } = useStore();
   const [contextMenu, setContextMenu] = useState<{ show: boolean; position: Position }>({
     show: false,
     position: { x: 0, y: 0 },
@@ -23,25 +25,81 @@ const Desktop = () => {
     return () => clearInterval(interval);
   }, []);
   
-  // Format time in 12-hour format
+  // Format time in 24-hour format for more terminal-like feel
   const formattedTime = currentTime.toLocaleTimeString('en-US', { 
-    hour: 'numeric', 
-    minute: '2-digit', 
-    hour12: true 
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: false 
   });
 
-  // Setup drop target for desktop items
+  // Create a new folder
+  const createNewFolder = useCallback(() => {
+    const newFolder: DesktopItem = {
+      id: uuidv4(),
+      name: `Folder ${items.filter(item => item.type === 'folder').length + 1}`,
+      type: 'folder',
+      position: {
+        // Position near context menu if it was triggered
+        x: Math.max(10, Math.min(90, contextMenu.position.x / window.innerWidth * 100)),
+        y: Math.max(10, Math.min(80, contextMenu.position.y / window.innerHeight * 100))
+      },
+      content: ''
+    };
+    
+    addItem(newFolder);
+    setContextMenu({ ...contextMenu, show: false });
+  }, [addItem, contextMenu, items]);
+
+  // Create a new text document
+  const createNewTextDocument = useCallback(() => {
+    const newDocument: DesktopItem = {
+      id: uuidv4(),
+      name: `Document ${items.filter(item => item.type === 'file').length + 1}.txt`,
+      type: 'file',
+      position: {
+        // Position near context menu if it was triggered
+        x: Math.max(10, Math.min(90, contextMenu.position.x / window.innerWidth * 100)),
+        y: Math.max(10, Math.min(80, contextMenu.position.y / window.innerHeight * 100))
+      },
+      content: 'Edit this document...'
+    };
+    
+    addItem(newDocument);
+    setContextMenu({ ...contextMenu, show: false });
+  }, [addItem, contextMenu, items]);
+
+  // Setup drop target for desktop items with proper positioning
   const [, drop] = useDrop({
     accept: 'DESKTOP_ITEM',
-    drop: (item: { id: string }, monitor) => {
-      const delta = monitor.getDifferenceFromInitialOffset() as {
-        x: number;
-        y: number;
-      };
-      const x = Math.round(delta.x);
-      const y = Math.round(delta.y);
+    drop: (item: { id: string; type: string }, monitor) => {
+      const dropResult = monitor.getDropResult();
+      const delta = monitor.getDifferenceFromInitialOffset();
       
-      updateItemPosition(item.id, x, y);
+      if (!delta) return undefined;
+      
+      // Calculate position as percentage of viewport for responsive positioning
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      
+      // Get the current item to determine its current position
+      const currentItem = items.find(i => i.id === item.id);
+      if (!currentItem) return undefined;
+      
+      // Calculate new position in percentage
+      const currentPosXPx = (currentItem.position.x / 100) * viewportWidth;
+      const currentPosYPx = (currentItem.position.y / 100) * viewportHeight;
+      
+      const newPosXPx = currentPosXPx + delta.x;
+      const newPosYPx = currentPosYPx + delta.y;
+      
+      const newPosX = (newPosXPx / viewportWidth) * 100;
+      const newPosY = (newPosYPx / viewportHeight) * 100;
+      
+      // Ensure the icon stays within viewport bounds (with margins)
+      const boundedPosX = Math.max(0, Math.min(90, newPosX));
+      const boundedPosY = Math.max(8, Math.min(80, newPosY)); // Account for top bar
+      
+      updateItemPosition(item.id, boundedPosX, boundedPosY);
       return undefined;
     },
   });
@@ -77,7 +135,7 @@ const Desktop = () => {
     >
       {/* Top status bar */}
       <div className="absolute top-0 left-0 right-0 h-8 bg-black flex justify-between items-center px-4 z-10 border-b border-zinc-800">
-        <div className="flex items-center text-white text-xs opacity-70">Terminal OS</div>
+        <div className="flex items-center text-white text-xs opacity-70">TERMINAL_OS</div>
         <div className="flex items-center space-x-4 text-white text-xs opacity-70">
           <span>{formattedTime}</span>
           <button 
@@ -89,9 +147,9 @@ const Desktop = () => {
         </div>
       </div>
       
-      <div className="absolute inset-0 pt-8">
-        {/* Desktop items in a more controlled grid, oklama-style */}
-        <div className="absolute top-0 left-0 bottom-[40px] right-0 p-4">
+      <div className="absolute inset-0 pt-8 pb-10">
+        {/* Desktop items */}
+        <div className="absolute top-0 left-0 bottom-0 right-0 p-4">
           {items.map((item) => (
             <DesktopIcon key={item.id} item={item} />
           ))}
@@ -102,7 +160,7 @@ const Desktop = () => {
       
       <TaskBar />
 
-      {/* Context Menu - more minimal styling */}
+      {/* Context Menu - with functional buttons */}
       {contextMenu.show && (
         <div 
           className="absolute bg-black border border-zinc-800 shadow-xl z-50 text-xs py-1 text-white"
@@ -110,22 +168,31 @@ const Desktop = () => {
             left: contextMenu.position.x, 
             top: contextMenu.position.y 
           }}
+          onClick={(e) => e.stopPropagation()}
         >
-          <button className="block w-full text-left px-4 py-2 hover:bg-zinc-800 transition-colors">
-            New Folder
+          <button 
+            className="block w-full text-left px-4 py-2 hover:bg-zinc-800 transition-colors flex items-center"
+            onClick={createNewFolder}
+          >
+            <FolderIcon size={12} className="mr-2 text-zinc-400" strokeWidth={1} />
+            <span>New Folder</span>
           </button>
-          <button className="block w-full text-left px-4 py-2 hover:bg-zinc-800 transition-colors">
-            New Text Document
+          <button 
+            className="block w-full text-left px-4 py-2 hover:bg-zinc-800 transition-colors flex items-center"
+            onClick={createNewTextDocument}
+          >
+            <FileTextIcon size={12} className="mr-2 text-zinc-400" strokeWidth={1} />
+            <span>New Text Document</span>
           </button>
           <div className="border-t border-zinc-800 my-1"></div>
-          <button className="block w-full text-left px-4 py-2 hover:bg-zinc-800 transition-colors">
+          <button className="block w-full text-left px-4 py-2 hover:bg-zinc-800 transition-colors opacity-70">
             View
           </button>
-          <button className="block w-full text-left px-4 py-2 hover:bg-zinc-800 transition-colors">
+          <button className="block w-full text-left px-4 py-2 hover:bg-zinc-800 transition-colors opacity-70">
             Sort By
           </button>
           <div className="border-t border-zinc-800 my-1"></div>
-          <button className="block w-full text-left px-4 py-2 hover:bg-zinc-800 transition-colors">
+          <button className="block w-full text-left px-4 py-2 hover:bg-zinc-800 transition-colors opacity-70">
             Properties
           </button>
         </div>

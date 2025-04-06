@@ -42,16 +42,23 @@ const mockLogin = async (username: string, password: string): Promise<boolean> =
 const defaultItems: DesktopItem[] = [
   {
     id: 'computer-1',
-    name: 'My Computer',
+    name: 'System',
     type: 'computer',
-    position: { x: 20, y: 20 },
+    position: { x: 15, y: 15 },
     created: new Date(),
   },
   {
     id: 'folder-1',
     name: 'Documents',
     type: 'folder',
-    position: { x: 20, y: 120 },
+    position: { x: 15, y: 35 },
+    created: new Date(),
+  },
+  {
+    id: 'terminal-1',
+    name: 'Terminal',
+    type: 'terminal',
+    position: { x: 15, y: 55 },
     created: new Date(),
   }
 ];
