@@ -9,5 +9,23 @@
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    text-rendering: optimizeSpeed;
+  }
+  
+  img, svg {
+    @apply max-w-full h-auto;
+    content-visibility: auto;
+  }
+}
+
+/* Custom animations with minimal impact */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease forwards;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 }

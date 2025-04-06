@@ -123,7 +123,7 @@ export default function TicketWall() {
 
       {/* Ticket grid */}
       {!isLoading && !error && filteredAndSortedTickets && filteredAndSortedTickets.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-in">
           {filteredAndSortedTickets.map((ticket) => (
             <TicketCard 
               key={ticket.id}
