@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { useStore } from '../store';
 import { DesktopItem } from '../types';
-import { FolderIcon, MonitorIcon, FileTextIcon, FileIcon, TrashIcon, TerminalIcon, Edit3Icon, Trash2Icon, ImageIcon } from 'lucide-react';
+import { FolderIcon, MonitorIcon, FileTextIcon, FileIcon, TrashIcon, TerminalIcon, Edit3Icon, Trash2Icon, ImageIcon, VideoIcon } from 'lucide-react';
 import TerminalWindow from './TerminalWindow';
 
 interface DesktopIconProps {
@@ -70,6 +70,7 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
                 {bufferItem.type === 'folder' && <FolderIcon size={24} className="text-white" strokeWidth={1} />}
                 {bufferItem.type === 'file' && <FileTextIcon size={24} className="text-white" strokeWidth={1} />}
                 {bufferItem.type === 'image' && <ImageIcon size={24} className="text-white" strokeWidth={1} />}
+                {bufferItem.type === 'video' && <VideoIcon size={24} className="text-white" strokeWidth={1} />}
               </div>
               <span className="text-xs text-center text-white bg-black bg-opacity-80 px-1 py-0.5 max-w-full truncate">
                 {bufferItem.name}
@@ -141,11 +142,25 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
                   if (folderItem.type === 'file') {
                     subContent = (
                       <div className="p-4 font-mono text-white bg-black h-full">
-                        <div className="border-b border-zinc-800 pb-2 mb-4">
+                        <div className="border-b border-zinc-800 pb-2 mb-4 flex justify-between items-center">
                           <h3 className="text-sm font-medium">{folderItem.name}</h3>
+                          <button 
+                            className="px-2 py-1 text-xs bg-blue-700 hover:bg-blue-600 text-white rounded transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const textarea = document.querySelector(`#file-${folderItem.id}`) as HTMLTextAreaElement;
+                              if (textarea) {
+                                useStore.getState().updateItemContent(folderItem.id, textarea.value);
+                                alert('File saved successfully!');
+                              }
+                            }}
+                          >
+                            Save
+                          </button>
                         </div>
                         <div className="relative h-64 border border-zinc-800 p-3">
                           <textarea 
+                            id={`file-${folderItem.id}`}
                             className="bg-transparent w-full h-full text-xs text-zinc-400 focus:outline-none resize-none"
                             defaultValue={folderItem.content || "Empty file. Start typing..."}
                           ></textarea>
@@ -167,6 +182,25 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
                             />
                           ) : (
                             <div className="text-zinc-500 text-xs">No image data available</div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  } else if (folderItem.type === 'video') {
+                    subContent = (
+                      <div className="p-4 font-mono text-white bg-black h-full flex flex-col">
+                        <div className="border-b border-zinc-800 pb-2 mb-4">
+                          <h3 className="text-sm font-medium">{folderItem.name}</h3>
+                        </div>
+                        <div className="flex-1 flex items-center justify-center bg-zinc-900 p-2 overflow-auto">
+                          {folderItem.content ? (
+                            <video 
+                              src={folderItem.content} 
+                              controls
+                              className="max-w-full max-h-full"
+                            />
+                          ) : (
+                            <div className="text-zinc-500 text-xs">No video data available</div>
                           )}
                         </div>
                       </div>
@@ -193,6 +227,7 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
                   {folderItem.type === 'folder' && <FolderIcon size={24} className="text-white" strokeWidth={1} />}
                   {folderItem.type === 'file' && <FileTextIcon size={24} className="text-white" strokeWidth={1} />}
                   {folderItem.type === 'image' && <ImageIcon size={24} className="text-white" strokeWidth={1} />}
+                  {folderItem.type === 'video' && <VideoIcon size={24} className="text-white" strokeWidth={1} />}
                 </div>
                 <span className="text-xs text-center text-white bg-black bg-opacity-80 px-1 py-0.5 max-w-full truncate">
                   {folderItem.name}
@@ -284,11 +319,25 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
       case 'file':
         content = (
           <div className="p-4 font-mono text-white bg-black h-full">
-            <div className="border-b border-zinc-800 pb-2 mb-4">
+            <div className="border-b border-zinc-800 pb-2 mb-4 flex justify-between items-center">
               <h3 className="text-sm font-medium">{item.name}</h3>
+              <button 
+                className="px-2 py-1 text-xs bg-blue-700 hover:bg-blue-600 text-white rounded transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const textarea = document.querySelector(`#file-${item.id}`) as HTMLTextAreaElement;
+                  if (textarea) {
+                    useStore.getState().updateItemContent(item.id, textarea.value);
+                    alert('File saved successfully!');
+                  }
+                }}
+              >
+                Save
+              </button>
             </div>
             <div className="relative h-64 border border-zinc-800 p-3">
               <textarea 
+                id={`file-${item.id}`}
                 className="bg-transparent w-full h-full text-xs text-zinc-400 focus:outline-none resize-none"
                 defaultValue={item.content || "Empty file. Start typing..."}
               ></textarea>
@@ -311,6 +360,26 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
                 />
               ) : (
                 <div className="text-zinc-500 text-xs">No image data available</div>
+              )}
+            </div>
+          </div>
+        );
+        break;
+      case 'video':
+        content = (
+          <div className="p-4 font-mono text-white bg-black h-full flex flex-col">
+            <div className="border-b border-zinc-800 pb-2 mb-4">
+              <h3 className="text-sm font-medium">{item.name}</h3>
+            </div>
+            <div className="flex-1 flex items-center justify-center bg-zinc-900 p-2 overflow-auto">
+              {item.content ? (
+                <video 
+                  src={item.content} 
+                  controls
+                  className="max-w-full max-h-full"
+                />
+              ) : (
+                <div className="text-zinc-500 text-xs">No video data available</div>
               )}
             </div>
           </div>
@@ -353,6 +422,8 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
         return <FileTextIcon size={28} className={iconColor} strokeWidth={1} />;
       case 'image':
         return <ImageIcon size={28} className={iconColor} strokeWidth={1} />;
+      case 'video':
+        return <VideoIcon size={28} className={iconColor} strokeWidth={1} />;
       case 'trash':
         return <TrashIcon size={28} className={isOver ? "text-red-400" : iconColor} strokeWidth={1} />;
       case 'terminal':

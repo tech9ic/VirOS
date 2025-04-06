@@ -15,7 +15,7 @@ export interface Size {
 }
 
 // Desktop item types
-export type ItemType = 'computer' | 'folder' | 'file' | 'app' | 'trash' | 'terminal' | 'image';
+export type ItemType = 'computer' | 'folder' | 'file' | 'app' | 'trash' | 'terminal' | 'image' | 'video';
 
 export interface DesktopItem {
   id: string;

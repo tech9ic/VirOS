@@ -151,10 +151,17 @@ const Desktop = () => {
             const fileContent = event.target?.result as string || '';
             
             // Add the file to desktop items
+            // Check file extension for better type detection
+            const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
+            const isImage = file.type.includes('image') || 
+                            ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'].includes(fileExtension);
+            const isVideo = file.type.includes('video') || 
+                            ['mp4', 'webm', 'ogg', 'mov'].includes(fileExtension);
+                            
             const newFile: DesktopItem = {
               id: uuidv4(),
               name: file.name,
-              type: file.type.includes('image') ? 'image' : 'file',
+              type: isImage ? 'image' : isVideo ? 'video' : 'file',
               position: {
                 // Position near drop location
                 x: Math.max(10, Math.min(90, (e.clientX / window.innerWidth) * 100)),
@@ -168,7 +175,13 @@ const Desktop = () => {
           };
           
           // Read file content as text or URL
-          if (file.type.includes('image')) {
+          const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
+          const isImage = file.type.includes('image') || 
+                         ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'].includes(fileExtension);
+          const isVideo = file.type.includes('video') || 
+                         ['mp4', 'webm', 'ogg', 'mov'].includes(fileExtension);
+          
+          if (isImage || isVideo) {
             reader.readAsDataURL(file);
           } else {
             reader.readAsText(file);

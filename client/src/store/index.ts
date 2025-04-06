@@ -27,7 +27,9 @@ interface State {
   addItemToFolder: (item: Omit<DesktopItem, 'id' | 'created'>, parentId: string) => string;
   
   // Buffer (recycle bin) management
+  bufferItems: DesktopItem[];
   moveToBuffer: (id: string) => void;
+  restoreFromBuffer: (id: string) => void;
   emptyBuffer: () => void;
   getBufferItems: () => DesktopItem[];
   
@@ -117,6 +119,7 @@ export const useStore = create<State>()(
       
       // Desktop items
       items: defaultItems,
+      bufferItems: [],
       addItem: (item) => {
         const id = uuidv4();
         set((state) => ({
@@ -189,26 +192,39 @@ export const useStore = create<State>()(
       
       // Buffer management
       moveToBuffer: (id) => {
-        // Mark the item as in trash (don't actually delete it)
+        // Push into buffer
+        const item = get().items.find((item) => item.id === id);
+        if (!item) return;
+        
+        // Remove the item from the desktop
         set((state) => ({
-          items: state.items.map((item) =>
-            item.id === id
-              ? { ...item, parentId: 'buffer' }
-              : item
-          ),
+          items: state.items.filter((item) => item.id !== id),
+          bufferItems: [...(state.bufferItems || []), { ...item, parentId: 'buffer' }]
+        }));
+      },
+      
+      restoreFromBuffer: (id) => {
+        // Find the item in the buffer
+        const item = get().bufferItems.find((item) => item.id === id);
+        if (!item) return;
+        
+        // Restore the item to the desktop
+        set((state) => ({
+          items: [...state.items, { ...item, parentId: null }],
+          bufferItems: state.bufferItems.filter((item) => item.id !== id)
         }));
       },
       
       emptyBuffer: () => {
-        // Truly delete all items in buffer
+        // Empty the buffer
         set((state) => ({
-          items: state.items.filter((item) => item.parentId !== 'buffer'),
+          bufferItems: []
         }));
       },
       
       getBufferItems: () => {
         // Return all items in buffer
-        return get().items.filter(item => item.parentId === 'buffer');
+        return get().bufferItems;
       },
       
       // Windows management
@@ -306,6 +322,7 @@ export const useStore = create<State>()(
       name: 'os-storage',
       partialize: (state) => ({
         items: state.items,
+        bufferItems: state.bufferItems,
         user: state.user,
         isAuthenticated: state.isAuthenticated,
         theme: state.theme
