@@ -3,6 +3,7 @@ import { useDrag, useDrop } from 'react-dnd';
 import { useStore } from '../store';
 import { DesktopItem } from '../types';
 import { FolderIcon, MonitorIcon, FileTextIcon, FileIcon, TrashIcon, TerminalIcon, Edit3Icon, Trash2Icon } from 'lucide-react';
+import TerminalWindow from './TerminalWindow';
 
 interface DesktopIconProps {
   item: DesktopItem;
@@ -55,15 +56,15 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
   // Double click handler for opening windows with enhanced content
   const handleDoubleClick = () => {
     if (item.type === 'trash') {
-      // Show trash contents
+      // Show buffer contents
       const content = (
         <div className="p-4 font-mono text-white bg-black h-full">
           <div className="border-b border-zinc-800 pb-2 mb-4 flex justify-between items-center">
-            <h3 className="text-sm font-medium">Recycle Bin</h3>
+            <h3 className="text-sm font-medium">Buffer</h3>
             <span className="text-xs text-zinc-500">0 items</span>
           </div>
           <div className="flex items-center justify-center h-32 text-zinc-600">
-            <p className="text-xs">Recycle Bin is empty</p>
+            <p className="text-xs">Buffer is empty</p>
           </div>
         </div>
       );
@@ -79,22 +80,10 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
           <div className="p-4 font-mono text-white bg-black h-full">
             <div className="border-b border-zinc-800 pb-2 mb-4 flex justify-between items-center">
               <h3 className="text-sm font-medium">{item.name}</h3>
-              <span className="text-xs text-zinc-500">2 items</span>
+              <span className="text-xs text-zinc-500">0 items</span>
             </div>
-            <div className="grid grid-cols-4 gap-4">
-              {/* Folder content with interactive hover */}
-              <div className="text-center group cursor-pointer hover:opacity-80">
-                <div className="p-3 mb-1 rounded-sm">
-                  <FolderIcon className="mx-auto" size={24} strokeWidth={1} />
-                </div>
-                <p className="text-xs truncate text-zinc-400 group-hover:text-white transition-colors">Documents</p>
-              </div>
-              <div className="text-center group cursor-pointer hover:opacity-80">
-                <div className="p-3 mb-1 rounded-sm">
-                  <FileTextIcon className="mx-auto" size={24} strokeWidth={1} />
-                </div>
-                <p className="text-xs truncate text-zinc-400 group-hover:text-white transition-colors">File.txt</p>
-              </div>
+            <div className="flex items-center justify-center h-32 text-zinc-600">
+              <p className="text-xs">Folder is empty</p>
             </div>
           </div>
         );
@@ -146,20 +135,7 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
         break;
       case 'terminal':
         content = (
-          <div className="p-4 font-mono text-white bg-black h-full flex flex-col">
-            <div className="border-b border-zinc-800 pb-2 mb-4 flex justify-between items-center">
-              <h3 className="text-sm font-medium">Terminal</h3>
-            </div>
-            <div className="flex-1 bg-zinc-900 p-2 overflow-y-auto font-mono text-xs text-green-500">
-              <div className="mb-1">Last login: {new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}</div>
-              <div className="mb-1">Terminal OS [Version 1.0.0]</div>
-              <div className="mb-3">(c) 2025 Terminal Corporation. All rights reserved.</div>
-              <div className="flex items-start mb-1">
-                <span className="mr-2 text-white">user@terminal:~$</span>
-                <span className="inline-block animate-blink">▌</span>
-              </div>
-            </div>
-          </div>
+          <TerminalWindow username={useStore.getState().user?.username || 'guest'} />
         );
         break;
       default:
@@ -366,7 +342,7 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
           <div className="bg-black border border-zinc-800 p-4 rounded-sm shadow-lg w-80">
             <h3 className="text-sm font-medium text-white mb-3">Confirm Delete</h3>
             <p className="text-xs text-zinc-400 mb-4">
-              Are you sure you want to move this item to the Recycle Bin?
+              Are you sure you want to delete this item?
             </p>
             <div className="flex justify-end space-x-2">
               <button 

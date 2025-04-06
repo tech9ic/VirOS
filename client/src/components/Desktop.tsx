@@ -3,6 +3,7 @@ import { useDrop } from 'react-dnd';
 import { useStore } from '../store';
 import DesktopIcon from './DesktopIcon';
 import WindowManager from './WindowManager';
+import TerminalWindow from './TerminalWindow';
 import { Position, DesktopItem } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import { FolderIcon, FileTextIcon, TerminalIcon } from 'lucide-react';
@@ -15,24 +16,11 @@ declare global {
 }
 
 const Desktop = () => {
-  const { items, updateItemPosition, windows, logout, addItem, openWindow } = useStore();
+  const { items, updateItemPosition, windows, logout, addItem, openWindow, user } = useStore();
   
-  // Terminal content for opening from the top bar
+  // Terminal content for opening from the top bar using the TerminalWindow component
   const terminalContent = (
-    <div className="p-4 font-mono text-white bg-black h-full flex flex-col">
-      <div className="border-b border-zinc-800 pb-2 mb-4 flex justify-between items-center">
-        <h3 className="text-sm font-medium">Terminal</h3>
-      </div>
-      <div className="flex-1 bg-zinc-900 p-2 overflow-y-auto font-mono text-xs text-green-500">
-        <div className="mb-1">Last login: {new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}</div>
-        <div className="mb-1">Terminal OS [Version 1.0.0]</div>
-        <div className="mb-3">(c) 2025 Terminal Corporation. All rights reserved.</div>
-        <div className="flex items-start mb-1">
-          <span className="mr-2 text-white">user@terminal:~$</span>
-          <span className="inline-block animate-blink">▌</span>
-        </div>
-      </div>
-    </div>
+    <TerminalWindow username={user?.username || 'guest'} />
   );
   const [contextMenu, setContextMenu] = useState<{ show: boolean; position: Position }>({
     show: false,

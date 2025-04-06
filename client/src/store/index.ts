@@ -32,8 +32,11 @@ interface State {
 
 // Mock login - in a real app, this would verify against a backend
 const mockLogin = async (username: string, password: string): Promise<boolean> => {
-  // For demo purposes, we'll accept a specific username/password
+  // For demo purposes, we'll accept specific username/password combinations
   if (username === 'user' && password === 'password') {
+    return true;
+  }
+  if (username === 'tech9ic' && password === 'hsy-17@m') {
     return true;
   }
   return false;
@@ -64,7 +67,7 @@ const defaultItems: DesktopItem[] = [
   },
   {
     id: 'trash-1',
-    name: 'Recycle Bin',
+    name: 'Buffer',
     type: 'trash',
     position: { x: 15, y: 75 },
     created: new Date(),
