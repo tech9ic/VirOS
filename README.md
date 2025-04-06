@@ -86,8 +86,8 @@ The application offers a nostalgic computing experience combined with modern web
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/yourusername/terminal-os.git
-   cd terminal-os
+   git clone https://github.com/yourusername/VirOS.git
+   cd viros
    ```
 
 2. **Install dependencies**
@@ -101,7 +101,7 @@ The application offers a nostalgic computing experience combined with modern web
    Create a `.env` file with your database connection:
 
    ```
-   DATABASE_URL=postgresql://username:password@localhost:5432/terminal_os
+   DATABASE_URL=postgresql://username:password@localhost:5432/VirOS
    ```
 
 4. **Set up the database**
@@ -127,7 +127,7 @@ We provide Docker support for easy deployment:
 1. **Build the image**
 
    ```bash
-   docker build -t terminal-os .
+   docker build -t viros .
    ```
 
 2. **Run the container**
@@ -135,7 +135,7 @@ We provide Docker support for easy deployment:
    ```bash
    docker run -p 3000:3000 \
      -e DATABASE_URL=postgresql://username:password@host.docker.internal:5432/terminal_os \
-     terminal-os
+     viros
    ```
 
 ## 🔍 Usage
