@@ -2,110 +2,100 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer components {
-  /* Sticky note styles for ticket cards */
-  .sticky-note {
-    @apply relative bg-yellow-100 border border-yellow-200 shadow-md transform transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg;
-    background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(0, 0, 0, 0.05) 19px, rgba(0, 0, 0, 0.05) 20px);
-  }
-  
-  .sticky-note::before {
-    content: '';
-    @apply absolute top-0 left-0 right-0 h-5 bg-yellow-200/70;
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 70%);
-  }
-  
-  /* Add pencil wall texture to the background */
-  .pencil-wall-bg {
-    background-color: #f8f8f8;
-    background-image: 
-      linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
-    background-size: 20px 20px;
-  }
-  
-  /* Minimal form inputs with Apple-like styling */
-  .minimal-input {
-    @apply px-3 py-2 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-200 bg-[#f5f5f7] text-black placeholder:text-gray-400;
-  }
-  
-  .minimal-select {
-    @apply px-3 py-2 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-200 bg-[#f5f5f7] text-black;
-  }
-  
-  .minimal-btn-primary {
-    @apply bg-black hover:bg-gray-800 text-white rounded-md transform transition-transform hover:-translate-y-0.5;
-  }
-}
-
 @layer base {
   * {
-    @apply border-border;
+    @apply border-zinc-200;
   }
 
   body {
-    @apply font-sans antialiased bg-[#f5f5f7] text-[#1d1d1f];
+    @apply font-sans antialiased text-gray-100 bg-blue-900 overflow-hidden;
     text-rendering: optimizeSpeed;
   }
   
   img, svg {
     @apply max-w-full h-auto;
-    content-visibility: auto;
   }
 }
 
-/* Apple OS inspired design system */
+/* WebOS Desktop System Styles */
 @layer components {
-  /* Forum-style ticket card */
-  .ticket-card {
-    @apply relative bg-white border border-gray-200 rounded-lg shadow-sm transition-all hover:shadow-md;
+  /* Window styles */
+  .os-window {
+    @apply bg-white bg-opacity-95 shadow-lg rounded overflow-hidden flex flex-col relative;
+    backdrop-filter: blur(10px);
   }
   
-  .ticket-solved {
-    @apply border-black border-opacity-20;
+  .os-window-title {
+    @apply bg-blue-700 text-white px-4 py-2 flex items-center justify-between cursor-move select-none;
   }
   
-  .ticket-unsolved {
-    @apply border-black border-opacity-10;
+  .os-window-content {
+    @apply flex-1 overflow-auto;
   }
   
-  /* Apple-style inputs */
-  .minimal-input {
-    @apply bg-[#f5f5f7] border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-black focus:border-black text-sm;
+  .os-window-resize-handle {
+    @apply absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize;
+    background-image: linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.3) 50%);
   }
   
-  .minimal-select {
-    @apply bg-[#f5f5f7] border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-black focus:border-black text-sm;
+  /* Desktop icons */
+  .os-desktop-icon {
+    @apply flex flex-col items-center justify-start cursor-pointer select-none;
   }
   
-  /* Apple-style buttons */
-  .minimal-btn {
-    @apply bg-[#f5f5f7] text-black border border-gray-300 rounded-md px-4 py-2 flex items-center gap-2 transition-colors hover:bg-gray-200;
+  .os-icon-container {
+    @apply w-12 h-12 flex items-center justify-center rounded-lg p-2 hover:bg-white/20 transition-colors;
   }
   
-  .minimal-btn-primary {
-    @apply bg-black text-white hover:bg-gray-800 rounded-md border-0;
+  .os-icon-label {
+    @apply mt-1 px-1 py-0.5 text-center text-xs text-white bg-black/30 rounded max-w-full overflow-hidden;
   }
   
-  /* Forum elements */
-  .forum-thread {
-    @apply border-b border-gray-200 pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0;
+  /* Taskbar styles */
+  .os-taskbar {
+    @apply h-10 bg-blue-900 text-white flex items-center border-t border-blue-700;
   }
   
-  .forum-header {
-    @apply mb-6 pb-3 border-b border-gray-200;
+  .os-taskbar-start {
+    @apply px-4 h-full flex items-center hover:bg-blue-700 cursor-pointer;
   }
   
-  .forum-author {
-    @apply text-xs text-gray-500 flex items-center gap-1;
+  .os-taskbar-item {
+    @apply px-3 py-1 rounded flex items-center space-x-1 cursor-pointer transition-colors;
   }
   
-  .apple-badge {
-    @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset;
+  .os-taskbar-item-active {
+    @apply bg-blue-700;
+  }
+  
+  .os-taskbar-item-inactive {
+    @apply hover:bg-blue-800;
+  }
+  
+  /* Start menu */
+  .os-start-menu {
+    @apply absolute left-0 bottom-10 w-64 bg-blue-900 shadow-lg rounded-t overflow-hidden;
+  }
+  
+  .os-start-menu-user {
+    @apply p-4 border-b border-blue-800 flex items-center space-x-3;
+  }
+  
+  .os-start-menu-item {
+    @apply px-4 py-2 hover:bg-blue-700 cursor-pointer flex items-center space-x-3;
+  }
+  
+  /* Form elements */
+  .os-input {
+    @apply mt-1 block w-full px-3 py-2 bg-blue-600 border border-blue-500 rounded-md text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400;
+  }
+  
+  .os-button {
+    @apply w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50;
   }
 }
 
-/* Custom animations with minimal impact */
+/* Animations */
 @layer utilities {
   .animate-fade-in {
     animation: fadeIn 0.3s ease forwards;
@@ -114,5 +104,14 @@
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.3s ease forwards;
+  }
+  
+  @keyframes slideUp {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
   }
 }
