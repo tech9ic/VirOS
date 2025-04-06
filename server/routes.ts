@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { insertTicketSchema } from "@shared/schema";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
+import { setupAuth } from "./auth";
 
 // Rate limiting middleware for API endpoints
 const createRateLimiter = (windowMs: number, maxRequests: number) => {
@@ -60,6 +61,9 @@ const securityHeaders = (req: Request, res: Response, next: NextFunction) => {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Apply global middlewares
   app.use(securityHeaders);
+  
+  // Set up authentication
+  setupAuth(app);
   
   // Apply rate limiters to specific routes
   const apiRateLimiter = createRateLimiter(60 * 1000, 30); // 30 requests per minute
