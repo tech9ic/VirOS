@@ -60,16 +60,72 @@ export const TerminalWindow = ({ username }: TerminalWindowProps) => {
         }
         return; // Don't add to history as we're closing
       case 'help':
-        output = 'Available commands:\n- whoami: Show user and IP information\n- exit: Close terminal\n- help: Show this help menu';
+        output = 'Available commands:\n- whoami: Show user and IP information\n- date: Display current date and time\n- echo [text]: Echo back text\n- fortune: Get a random fortune message\n- neofetch: Display system information\n- ls: List desktop items\n- cowsay [message]: Display a cow saying message\n- uname: Display OS name\n- ping [address]: Simulate pinging an address\n- clear: Clear terminal\n- exit: Close terminal\n- help: Show this help menu';
         break;
       case 'clear':
         setCommandHistory([]);
         return; // Don't add to history
+      case 'date':
+        output = new Date().toString();
+        break;
+      case 'neofetch':
+        output = `
+ \\    /
+  \\  /      _____
+   \\/      |     |    VirOS 1.1.0
+   /\\      |_____|    User: ${username}
+  /  \\                Terminal: xterm-256color
+ /    \\               Memory: 1024MB / 4096MB
+                      IP: ${userIp}
+                      Theme: Cyberpunk
+        `;
+        break;
+      case 'uname':
+        output = 'VirOS';
+        break;
+      case 'ls':
+        const items = useStore.getState().items;
+        output = items.map((item: { name: string }) => item.name).join('  ');
+        break;
+      case 'fortune':
+        const fortunes = [
+          "You will soon embark on a new coding adventure.",
+          "A clever commit message will bring you good luck.",
+          "The bug you've been hunting is hiding in plain sight.",
+          "Today is a good day to refactor your code.",
+          "A PR approval is in your future.",
+          "Expect a merge conflict before the day is done.",
+          "Your next deployment will go smoothly. No errors.",
+          "Help a fellow developer today, karma will return.",
+          "The documentation you seek exists, just not where you're looking.",
+          "The answer is on Stack Overflow, but not on the first page."
+        ];
+        output = fortunes[Math.floor(Math.random() * fortunes.length)];
+        break;
       case '':
         return; // Don't add empty commands to history
       default:
-        output = `Command not found: ${input}`;
-        isError = true;
+        if (commandLower.startsWith('echo ')) {
+          output = input.substring(5);
+        } else if (commandLower.startsWith('cowsay ')) {
+          const message = input.substring(7);
+          output = `
+  ${'_'.repeat(message.length + 2)}
+ < ${message} >
+  ${'-'.repeat(message.length + 2)}
+        \\   ^__^
+         \\  (oo)\\_______
+            (__)\\       )\\/\\
+                ||----w |
+                ||     ||
+          `;
+        } else if (commandLower.startsWith('ping ')) {
+          const address = input.substring(5);
+          output = `PING ${address} (127.0.0.1): 56 data bytes\n64 bytes from 127.0.0.1: icmp_seq=0 ttl=64 time=0.080 ms\n64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.074 ms\n64 bytes from 127.0.0.1: icmp_seq=2 ttl=64 time=0.082 ms\n\n--- ${address} ping statistics ---\n3 packets transmitted, 3 packets received, 0.0% packet loss\nround-trip min/avg/max/stddev = 0.074/0.079/0.082/0.003 ms`;
+        } else {
+          output = `Command not found: ${input}`;
+          isError = true;
+        }
     }
 
     setCommandHistory([...commandHistory, { command: input, output, isError }]);
@@ -92,8 +148,8 @@ export const TerminalWindow = ({ username }: TerminalWindowProps) => {
         className="flex-1 bg-zinc-900 p-2 overflow-y-auto font-mono text-xs text-green-500"
       >
         <div className="mb-1">Last login: {new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}</div>
-        <div className="mb-1">Terminal OS [Version 1.0.0]</div>
-        <div className="mb-3">(c) 2025 Terminal Corporation. All rights reserved.</div>
+        <div className="mb-1">VirOS [Version 1.1.0]</div>
+        <div className="mb-3">(c) 2025 Bibhuti Bhusan Majhi. All rights reserved.</div>
         
         {/* Command history */}
         {commandHistory.map((item, index) => (

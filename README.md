@@ -1,7 +1,7 @@
-# 🖥️ Terminal OS - Desktop Simulator
+# 🖥️ VirOS - Virtual Desktop OS
 
 <div align="center">
-  <img src="attached_assets/screenshot-1743956788288.png" alt="Terminal OS Screenshot" width="700px" />
+  <img src="attached_assets/screenshot-1743956788288.png" alt="VirOS Screenshot" width="700px" />
   <p><em>A nostalgic journey back to classic desktop computing</em></p>
 </div>
 
@@ -14,18 +14,25 @@
   <a href="#-license">License</a>
 </div>
 
+<div align="center">
+  <img src="https://img.shields.io/github/stars/tech9ic/viros?style=for-the-badge" alt="Stars" />
+  <img src="https://img.shields.io/github/forks/tech9ic/viros?style=for-the-badge" alt="Forks" />
+  <img src="https://img.shields.io/github/issues/tech9ic/viros?style=for-the-badge" alt="Issues" />
+  <img src="https://img.shields.io/github/license/tech9ic/viros?style=for-the-badge" alt="License" />
+</div>
+
 ---
 
 ## 🌟 Overview
 
-Terminal OS is a modern web-based simulation of classic desktop operating systems. It features an interactive desktop environment with draggable icons, windowing system, and terminal emulation - all accessible from any device with a web browser.
+VirOS (formerly VirOS) is a modern web-based simulation of classic desktop operating systems. It features an interactive desktop environment with draggable icons, windowing system, and terminal emulation - all accessible from any device with a web browser.
 
 The application offers a nostalgic computing experience combined with modern web technologies to create a unique interface that works seamlessly across desktop and mobile devices.
 
 ## ✨ Features
 
 - **🖥️ Desktop Environment**: Fully interactive desktop with draggable icons and window management
-- **🛡️ System Files**: Protected system files (System, Documents, Buffer, Terminal) that cannot be deleted or renamed
+- **🛡️ System Files**: Protected system files (System, Projects, Buffer, Terminal, bibhu.exe) that cannot be deleted or renamed
 - **💻 Terminal Emulator**: Functional terminal with command support
 - **📁 File Management**: Create, rename, delete, and organize files and folders
 - **📱 Responsive Design**: Optimized for all device sizes - desktop, tablet and mobile 
@@ -149,17 +156,24 @@ We provide Docker support for easy deployment:
 The following system files cannot be deleted or renamed:
 
 - **System**: View system information
-- **Documents**: Store and organize your files
+- **Projects**: Store and organize your files
 - **Terminal**: Access command-line interface
 - **Buffer**: Temporary storage for deleted items (like Recycle Bin/Trash)
+- **bibhu.exe**: View developer portfolio and information
 
 ### Terminal Commands
-
-The terminal supports basic commands:
 
 - `help` - Show available commands
 - `echo [text]` - Display text
 - `date` - Show current date/time
+- `clear` - Clear the terminal
+- `ls` - List files
+- `whoami` - Show current user
+- `neofetch` - Display system information
+- `uname` - Display OS name
+- `cowsay [message]` - Display a cow saying your message
+- `fortune` - Get a random fortune message
+- `ping [address]` - Simulate pinging an address
 - `clear` - Clear the terminal
 - `ls` - List files
 - `whoami` - Show current user
@@ -182,7 +196,7 @@ The terminal supports basic commands:
 
 ### Deployment Platforms
 
-Terminal OS can be deployed to any platform that supports Node.js:
+VirOS can be deployed to any platform that supports Node.js:
 
 - **Heroku**: Easy deployment with PostgreSQL add-on
 - **Vercel**: Great for frontend with serverless functions for the backend
@@ -212,6 +226,12 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ---
 
 <div align="center">
-  <p>Made with ❤️ by Your Name</p>
-  <p>© 2025 Terminal OS Project</p>
+  <p>Made with ❤️ by Bibhuti Bhusan Majhi</p>
+  <p>© 2025 VirOS Project</p>
 </div>
+## GitHub Stats
+
+[![GitHub Stars](https://img.shields.io/github/stars/tech9ic/viros?style=flat&logo=github&logoColor=white&color=blue)](https://github.com/tech9ic/viros/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/tech9ic/viros?style=flat&logo=github&logoColor=white&color=blue)](https://github.com/tech9ic/viros/network/members)
+[![GitHub Issues](https://img.shields.io/github/issues/tech9ic/viros?style=flat&logo=github&logoColor=white&color=blue)](https://github.com/tech9ic/viros/issues)
+[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/tech9ic/viros?style=flat&logo=github&logoColor=white&color=blue)](https://github.com/tech9ic/viros/pulls)

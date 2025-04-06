@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useStore } from '../store';
-import { MonitorIcon, TerminalIcon, FolderIcon, SettingsIcon, LogOutIcon } from 'lucide-react';
+import { MonitorIcon, TerminalIcon, FolderIcon, SettingsIcon, LogOutIcon, RefreshCwIcon } from 'lucide-react';
+import { resetStorage } from '../store';
 
 const TaskBar = () => {
   const { windows, focusWindow, logout } = useStore();
@@ -58,8 +59,8 @@ const TaskBar = () => {
               <MonitorIcon size={16} strokeWidth={1} className="text-zinc-400" />
             </div>
             <div>
-              <div className="text-sm">Terminal OS</div>
-              <div className="text-xs text-zinc-500">v1.0.0</div>
+              <div className="text-sm">VirOS</div>
+              <div className="text-xs text-zinc-500">v1.1.0</div>
             </div>
           </div>
           
@@ -70,11 +71,23 @@ const TaskBar = () => {
             </div>
             <div className="px-3 py-2 hover:bg-zinc-900 cursor-pointer transition-colors flex items-center space-x-3">
               <FolderIcon size={16} strokeWidth={1} className="text-zinc-400" />
-              <span>Files</span>
+              <span>Projects</span>
             </div>
             <div className="px-3 py-2 hover:bg-zinc-900 cursor-pointer transition-colors flex items-center space-x-3">
               <SettingsIcon size={16} strokeWidth={1} className="text-zinc-400" />
               <span>Settings</span>
+            </div>
+            <div 
+              className="px-3 py-2 hover:bg-zinc-900 cursor-pointer transition-colors flex items-center space-x-3"
+              onClick={() => {
+                if (confirm('Reset application storage? This will refresh your desktop to factory settings.')) {
+                  resetStorage();
+                }
+                setShowStartMenu(false);
+              }}
+            >
+              <RefreshCwIcon size={16} strokeWidth={1} className="text-zinc-400" />
+              <span>Reset</span>
             </div>
             <div className="border-t border-zinc-800 my-1"></div>
             <div 
