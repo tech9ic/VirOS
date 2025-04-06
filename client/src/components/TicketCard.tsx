@@ -1,12 +1,17 @@
 import * as Checkbox from '@radix-ui/react-checkbox';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { CheckIcon, MessageCircle, Clock, User } from 'lucide-react';
+import { CheckIcon, MessageCircle, Clock, User, Paperclip } from 'lucide-react';
 import { Ticket, Tag } from '@shared/schema';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Badge } from './ui/badge';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
+import { useState } from 'react';
+import ProgressSelector from './ProgressSelector';
+import PrioritySelector from './PrioritySelector';
+import AttachmentList from './AttachmentList';
 
 interface TicketCardProps {
   ticket: Ticket;
@@ -15,6 +20,7 @@ interface TicketCardProps {
 
 export default function TicketCard({ ticket, formattedTime }: TicketCardProps) {
   const { toast } = useToast();
+  const [detailsOpen, setDetailsOpen] = useState(false);
   
   // Fetch tags for this ticket
   const { data: tags, isLoading: isLoadingTags } = useQuery<Tag[]>({
@@ -145,6 +151,34 @@ export default function TicketCard({ ticket, formattedTime }: TicketCardProps) {
             ))}
           </div>
         )}
+        
+        {/* Ticket details collapsible */}
+        <Collapsible 
+          open={detailsOpen} 
+          onOpenChange={setDetailsOpen}
+          className="mt-4"
+        >
+          <CollapsibleTrigger asChild>
+            <div className="flex items-center gap-2 p-2 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+              <div className="flex-1 flex items-center gap-2">
+                <Paperclip className="h-3.5 w-3.5 text-gray-500" />
+                <span className="text-sm font-medium">Ticket Details & Attachments</span>
+              </div>
+              <div className="text-xs text-gray-500">
+                {detailsOpen ? 'Hide' : 'Show'}
+              </div>
+            </div>
+          </CollapsibleTrigger>
+          
+          <CollapsibleContent className="mt-4 space-y-4 pb-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <ProgressSelector ticket={ticket} />
+              <PrioritySelector ticket={ticket} />
+            </div>
+            
+            <AttachmentList ticketId={ticket.id} />
+          </CollapsibleContent>
+        </Collapsible>
         
         {/* Forum-like footer */}
         <div className="flex justify-between items-center text-xs text-gray-500 mt-3 pt-3 border-t border-gray-200">

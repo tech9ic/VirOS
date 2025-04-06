@@ -11,8 +11,9 @@ import { useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import TagSelector from './TagSelector';
+import AttachmentUploader from './AttachmentUploader';
 
 // Extend the insert schema with validation rules
 const ticketFormSchema = insertTicketSchema.extend({
@@ -24,6 +25,7 @@ const ticketFormSchema = insertTicketSchema.extend({
 export default function TicketForm() {
   const { toast } = useToast();
   const [selectedTags, setSelectedTags] = useState<number[]>([]);
+  const [createdTicketId, setCreatedTicketId] = useState<number | null>(null);
   
   const form = useForm<z.infer<typeof ticketFormSchema>>({
     resolver: zodResolver(ticketFormSchema),
@@ -48,9 +50,9 @@ export default function TicketForm() {
       const response = await apiRequest('POST', '/api/tickets', data);
       return response.json();
     },
-    onSuccess: () => {
-      // Reset form
-      form.reset();
+    onSuccess: (data) => {
+      // Set the created ticket ID for file uploads
+      setCreatedTicketId(data.id);
       
       // Show success toast
       toast({
@@ -207,23 +209,47 @@ export default function TicketForm() {
             />
           </div>
           
-          <Button 
-            type="submit" 
-            className="minimal-btn-primary w-full flex justify-center gap-2 py-2.5"
-            disabled={createTicketMutation.isPending}
-          >
-            {createTicketMutation.isPending ? (
-              <div className="flex items-center">
-                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                <span>Posting...</span>
+          {/* Attachment uploader - only shown after ticket creation */}
+          {createdTicketId && (
+            <div className="border p-4 border-gray-200 rounded-md bg-[#f5f5f7]">
+              <AttachmentUploader ticketId={createdTicketId} />
+
+              <div className="mt-4 flex justify-between">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setCreatedTicketId(null);
+                    form.reset();
+                    setSelectedTags([]);
+                  }}
+                  className="text-sm"
+                >
+                  Create New Ticket
+                </Button>
               </div>
-            ) : (
-              <>
-                <SendIcon className="h-4 w-4" />
-                <span>Post New Thread</span>
-              </>
-            )}
-          </Button>
+            </div>
+          )}
+
+          {/* Submit button - only shown before ticket creation */}
+          {!createdTicketId && (
+            <Button 
+              type="submit" 
+              className="minimal-btn-primary w-full flex justify-center gap-2 py-2.5"
+              disabled={createTicketMutation.isPending}
+            >
+              {createTicketMutation.isPending ? (
+                <div className="flex items-center">
+                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  <span>Posting...</span>
+                </div>
+              ) : (
+                <>
+                  <SendIcon className="h-4 w-4" />
+                  <span>Post New Thread</span>
+                </>
+              )}
+            </Button>
+          )}
         </form>
       </Form>
     </div>
