@@ -1,4 +1,4 @@
-# 🖥️ VirOS - Virtual Desktop OS
+# 🖥️ VirOS - A little bit of me...
 
 <div align="center">
   <img src="attached_assets/screenshot-1743956788288.png" alt="VirOS Screenshot" width="700px" />
@@ -35,7 +35,7 @@ The application offers a nostalgic computing experience combined with modern web
 - **🛡️ System Files**: Protected system files (System, Projects, Buffer, Terminal, bibhu.exe) that cannot be deleted or renamed
 - **💻 Terminal Emulator**: Functional terminal with command support
 - **📁 File Management**: Create, rename, delete, and organize files and folders
-- **📱 Responsive Design**: Optimized for all device sizes - desktop, tablet and mobile 
+- **📱 Responsive Design**: Optimized for all device sizes - desktop, tablet and mobile
 - **🌓 Theme Support**: Toggle between light and dark modes
 - **☁️ Cloud Storage**: Persistent state with browser localStorage (settings and files)
 
@@ -142,14 +142,14 @@ We provide Docker support for easy deployment:
 
 ### Desktop Controls
 
-| Action | Description |
-|--------|-------------|
-| **Left-click** | Select item |
-| **Double-click** | Open item |
-| **Right-click** (on desktop) | Show desktop context menu |
-| **Right-click** (on item) | Show item context menu (open, rename, delete) |
-| **Drag** | Move items around the desktop |
-| **Drag to Buffer** | Move item to the Buffer |
+| Action                       | Description                                   |
+| ---------------------------- | --------------------------------------------- |
+| **Left-click**               | Select item                                   |
+| **Double-click**             | Open item                                     |
+| **Right-click** (on desktop) | Show desktop context menu                     |
+| **Right-click** (on item)    | Show item context menu (open, rename, delete) |
+| **Drag**                     | Move items around the desktop                 |
+| **Drag to Buffer**           | Move item to the Buffer                       |
 
 ### System Files
 
@@ -226,12 +226,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ---
 
 <div align="center">
-  <p>Made with ❤️ by Bibhuti Bhusan Majhi</p>
+  <p>Made with ❤️ by Btech9ic</p>
   <p>© 2025 VirOS Project</p>
 </div>
-## GitHub Stats
-
-[![GitHub Stars](https://img.shields.io/github/stars/tech9ic/viros?style=flat&logo=github&logoColor=white&color=blue)](https://github.com/tech9ic/viros/stargazers)
-[![GitHub Forks](https://img.shields.io/github/forks/tech9ic/viros?style=flat&logo=github&logoColor=white&color=blue)](https://github.com/tech9ic/viros/network/members)
-[![GitHub Issues](https://img.shields.io/github/issues/tech9ic/viros?style=flat&logo=github&logoColor=white&color=blue)](https://github.com/tech9ic/viros/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/tech9ic/viros?style=flat&logo=github&logoColor=white&color=blue)](https://github.com/tech9ic/viros/pulls)
