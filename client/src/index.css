@@ -4,94 +4,95 @@
 
 @layer base {
   * {
-    @apply border-zinc-200;
+    @apply border-zinc-800;
   }
 
   body {
-    @apply font-sans antialiased text-gray-100 bg-blue-900 overflow-hidden;
-    text-rendering: optimizeSpeed;
+    @apply font-mono antialiased text-white bg-black overflow-hidden;
+    text-rendering: optimizeLegibility;
   }
   
   img, svg {
     @apply max-w-full h-auto;
   }
+  
+  ::-webkit-scrollbar {
+    @apply w-1;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-zinc-900;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-zinc-700 hover:bg-zinc-600;
+  }
 }
 
-/* WebOS Desktop System Styles */
+/* Terminal OS Desktop System Styles - oklama-inspired */
 @layer components {
-  /* Window styles */
-  .os-window {
-    @apply bg-white bg-opacity-95 shadow-lg rounded overflow-hidden flex flex-col relative;
-    backdrop-filter: blur(10px);
+  /* Pixel rendering for crisp UI elements */
+  .rendering-pixelated {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
   }
   
-  .os-window-title {
-    @apply bg-blue-700 text-white px-4 py-2 flex items-center justify-between cursor-move select-none;
+  /* Typography */
+  .text-terminal {
+    @apply font-mono tracking-tight antialiased;
+    letter-spacing: -0.02em;
   }
   
-  .os-window-content {
-    @apply flex-1 overflow-auto;
+  /* Button styles */
+  .btn-terminal {
+    @apply px-3 py-1.5 border border-zinc-800 bg-black text-xs text-zinc-400 
+           hover:text-white hover:border-zinc-700 transition-colors duration-200
+           focus:outline-none flex items-center justify-center;
   }
   
-  .os-window-resize-handle {
-    @apply absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize;
-    background-image: linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.3) 50%);
-  }
-  
-  /* Desktop icons */
-  .os-desktop-icon {
-    @apply flex flex-col items-center justify-start cursor-pointer select-none;
-  }
-  
-  .os-icon-container {
-    @apply w-12 h-12 flex items-center justify-center rounded-lg p-2 hover:bg-white/20 transition-colors;
-  }
-  
-  .os-icon-label {
-    @apply mt-1 px-1 py-0.5 text-center text-xs text-white bg-black/30 rounded max-w-full overflow-hidden;
-  }
-  
-  /* Taskbar styles */
-  .os-taskbar {
-    @apply h-10 bg-blue-900 text-white flex items-center border-t border-blue-700;
-  }
-  
-  .os-taskbar-start {
-    @apply px-4 h-full flex items-center hover:bg-blue-700 cursor-pointer;
-  }
-  
-  .os-taskbar-item {
-    @apply px-3 py-1 rounded flex items-center space-x-1 cursor-pointer transition-colors;
-  }
-  
-  .os-taskbar-item-active {
-    @apply bg-blue-700;
-  }
-  
-  .os-taskbar-item-inactive {
-    @apply hover:bg-blue-800;
-  }
-  
-  /* Start menu */
-  .os-start-menu {
-    @apply absolute left-0 bottom-10 w-64 bg-blue-900 shadow-lg rounded-t overflow-hidden;
-  }
-  
-  .os-start-menu-user {
-    @apply p-4 border-b border-blue-800 flex items-center space-x-3;
-  }
-  
-  .os-start-menu-item {
-    @apply px-4 py-2 hover:bg-blue-700 cursor-pointer flex items-center space-x-3;
+  .btn-terminal-active {
+    @apply border-zinc-700 text-white;
   }
   
   /* Form elements */
-  .os-input {
-    @apply mt-1 block w-full px-3 py-2 bg-blue-600 border border-blue-500 rounded-md text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400;
+  .input-terminal {
+    @apply bg-black border-b border-zinc-800 py-1 px-0 w-full text-sm 
+           text-white placeholder-zinc-600 focus:border-zinc-700
+           focus:outline-none transition-colors;
   }
   
-  .os-button {
-    @apply w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50;
+  /* Status indicators */
+  .status-dot {
+    @apply w-1.5 h-1.5 rounded-full;
+  }
+  
+  .status-active {
+    @apply bg-white;
+  }
+  
+  .status-inactive {
+    @apply bg-zinc-700;
+  }
+  
+  /* Terminal prompt styling */
+  .terminal-prompt {
+    @apply font-mono text-zinc-400 text-xs;
+  }
+  
+  .terminal-prompt::before {
+    content: "$ ";
+    @apply text-zinc-600;
+  }
+  
+  /* Card container */
+  .card-terminal {
+    @apply bg-black border border-zinc-800 p-3 text-white;
+  }
+  
+  /* Panel container */
+  .panel-terminal {
+    @apply bg-zinc-900 border border-zinc-800 shadow-lg;
   }
 }
 
@@ -111,7 +112,29 @@
   }
   
   @keyframes slideUp {
-    from { transform: translateY(10px); opacity: 0; }
+    from { transform: translateY(5px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
+  }
+  
+  .animate-blink {
+    animation: blink 1s ease-in-out infinite;
+  }
+  
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  
+  /* Terminal text effect */
+  .animate-typing {
+    overflow: hidden;
+    white-space: nowrap;
+    animation: typing 1.5s steps(30, end);
+    width: fit-content;
+  }
+  
+  @keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
   }
 }

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Window } from '../types';
 import { useStore } from '../store';
-import { XCircleIcon, MinusCircleIcon, MaximizeIcon, MinimizeIcon } from 'lucide-react';
+import { XIcon, MinusIcon, MaximizeIcon, MinimizeIcon } from 'lucide-react';
 
 interface WindowProps {
   window: Window;
@@ -108,32 +108,43 @@ const WindowComponent: React.FC<WindowProps> = ({ window }) => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, isResizing, dragOffset, resizeStartPos, resizeStartSize, window.id]);
+  }, [isDragging, isResizing, dragOffset, resizeStartPos, resizeStartSize, window.id, updateWindowPosition, updateWindowSize]);
+  
+  // Calculate if window is active based on zIndex
+  const isActive = window.zIndex === Math.max(...useStore().windows.map(w => w.zIndex));
   
   return (
     <div
       ref={windowRef}
-      className="os-window absolute pointer-events-auto"
+      className={`absolute font-mono pointer-events-auto border ${isActive ? 'border-zinc-600' : 'border-zinc-800'} shadow-md overflow-hidden`}
       style={{
-        width: window.isMaximized ? '100%' : window.size.width,
-        height: window.isMaximized ? 'calc(100% - 40px)' : window.size.height,
-        left: window.isMaximized ? 0 : window.position.x,
-        top: window.isMaximized ? 0 : window.position.y,
+        width: window.isMaximized ? 'calc(100% - 40px)' : window.size.width,
+        height: window.isMaximized ? 'calc(100% - 50px)' : window.size.height,
+        left: window.isMaximized ? 20 : window.position.x,
+        top: window.isMaximized ? 10 : window.position.y,
         zIndex: window.zIndex,
+        backgroundColor: 'black',
       }}
       onClick={handleWindowClick}
     >
-      <div className="os-window-title" onMouseDown={handleDragStart}>
-        <span className="truncate">{window.title}</span>
-        <div className="flex items-center space-x-1">
+      {/* Window title bar */}
+      <div 
+        className={`h-7 flex items-center justify-between px-2 ${isActive ? 'bg-zinc-800' : 'bg-zinc-900'} text-xs text-white cursor-move border-b border-zinc-700`}
+        onMouseDown={handleDragStart}
+      >
+        <div className="flex items-center space-x-2">
+          <div className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white' : 'bg-zinc-600'}`}></div>
+          <span className="truncate text-zinc-400">{window.title}</span>
+        </div>
+        <div className="flex items-center space-x-3">
           <button
-            className="text-white hover:bg-blue-800 p-1 rounded focus:outline-none"
+            className="text-zinc-500 hover:text-white focus:outline-none transition-colors"
             onClick={() => minimizeWindow(window.id)}
           >
-            <MinusCircleIcon size={16} />
+            <MinusIcon size={12} strokeWidth={1.5} />
           </button>
           <button
-            className="text-white hover:bg-blue-800 p-1 rounded focus:outline-none"
+            className="text-zinc-500 hover:text-white focus:outline-none transition-colors"
             onClick={() => 
               window.isMaximized 
                 ? restoreWindow(window.id) 
@@ -141,29 +152,33 @@ const WindowComponent: React.FC<WindowProps> = ({ window }) => {
             }
           >
             {window.isMaximized ? (
-              <MinimizeIcon size={16} />
+              <MinimizeIcon size={12} strokeWidth={1.5} />
             ) : (
-              <MaximizeIcon size={16} />
+              <MaximizeIcon size={12} strokeWidth={1.5} />
             )}
           </button>
           <button
-            className="text-white hover:bg-red-600 p-1 rounded focus:outline-none"
+            className="text-zinc-500 hover:text-white focus:outline-none transition-colors"
             onClick={() => closeWindow(window.id)}
           >
-            <XCircleIcon size={16} />
+            <XIcon size={12} strokeWidth={1.5} />
           </button>
         </div>
       </div>
       
-      <div className="os-window-content">
+      {/* Window content */}
+      <div className="text-white overflow-auto h-[calc(100%-1.75rem)]">
         {window.content}
       </div>
       
+      {/* Resize handle - only show if window is not maximized */}
       {!window.isMaximized && (
         <div
-          className="os-window-resize-handle"
+          className="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize"
           onMouseDown={handleResizeStart}
-        />
+        >
+          <div className="absolute bottom-1 right-1 w-2 h-2 border-r border-b border-zinc-600"></div>
+        </div>
       )}
     </div>
   );
