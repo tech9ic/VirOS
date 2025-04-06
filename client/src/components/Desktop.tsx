@@ -155,13 +155,11 @@ const Desktop = () => {
             const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
             const isImage = file.type.includes('image') || 
                             ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'].includes(fileExtension);
-            const isVideo = file.type.includes('video') || 
-                            ['mp4', 'webm', 'ogg', 'mov'].includes(fileExtension);
                             
             const newFile: DesktopItem = {
               id: uuidv4(),
               name: file.name,
-              type: isImage ? 'image' : isVideo ? 'video' : 'file',
+              type: isImage ? 'image' : 'file',
               position: {
                 // Position near drop location
                 x: Math.max(10, Math.min(90, (e.clientX / window.innerWidth) * 100)),
@@ -178,10 +176,8 @@ const Desktop = () => {
           const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
           const isImage = file.type.includes('image') || 
                          ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'].includes(fileExtension);
-          const isVideo = file.type.includes('video') || 
-                         ['mp4', 'webm', 'ogg', 'mov'].includes(fileExtension);
           
-          if (isImage || isVideo) {
+          if (isImage) {
             reader.readAsDataURL(file);
           } else {
             reader.readAsText(file);
