@@ -108,28 +108,28 @@ const defaultItems: DesktopItem[] = [
     id: 'computer-1',
     name: 'System',
     type: 'computer',
-    position: { x: 5, y: 15 },
+    position: { x: 2, y: 10 },
     created: new Date(),
   },
   {
     id: 'folder-1',
     name: 'Documents',
     type: 'folder',
-    position: { x: 5, y: 35 },
+    position: { x: 2, y: 25 },
     created: new Date(),
   },
   {
     id: 'terminal-1',
     name: 'Terminal',
     type: 'terminal',
-    position: { x: 5, y: 55 },
+    position: { x: 2, y: 40 },
     created: new Date(),
   },
   {
     id: 'trash-1',
     name: 'Buffer',
     type: 'trash',
-    position: { x: 5, y: 75 },
+    position: { x: 2, y: 55 },
     created: new Date(),
   }
 ];

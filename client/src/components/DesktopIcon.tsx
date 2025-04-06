@@ -540,7 +540,9 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
           opacity: isDragging ? 0.5 : 1,
           top: `${position.y}%`,
           left: `${position.x}%`,
-          width: '90px',
+          width: '70px',
+          maxWidth: '15%',
+          minWidth: '50px',
           zIndex: isDragging ? 100 : 1,
           WebkitTouchCallout: 'none',
           transition: isDragging ? 'none' : 'opacity 0.2s ease',
@@ -570,11 +572,11 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
             onClick={(e) => e.stopPropagation()}
           />
         ) : (
-          <span className={`max-w-full text-center px-1 py-0.5 text-xs mt-1 truncate ${
+          <span className={`max-w-full text-center px-1 py-0.5 text-xs mt-1 truncate rounded ${
             theme === 'dark'
-            ? 'text-white bg-black bg-opacity-80' 
-            : 'text-black bg-white bg-opacity-80'
-          }`}>
+            ? 'text-white bg-black bg-opacity-95' 
+            : 'text-black bg-white bg-opacity-95'
+          }`} style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
             {item.name}
           </span>
         )}

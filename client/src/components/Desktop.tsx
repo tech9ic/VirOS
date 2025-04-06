@@ -17,6 +17,17 @@ declare global {
 
 const Desktop = () => {
   const { items, updateItemPosition, windows, logout, addItem, openWindow, user, theme, toggleTheme } = useStore();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  
+  // Add resize listener to update isMobile state
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   // Terminal content for opening from the top bar using the TerminalWindow component
   const terminalContent = (
@@ -247,7 +258,7 @@ const Desktop = () => {
       
       <div className="absolute inset-0 pt-8">
         {/* Desktop items */}
-        <div className="absolute top-0 left-0 bottom-0 right-0 p-4">
+        <div className={`absolute top-0 left-0 bottom-0 right-0 ${isMobile ? 'p-2' : 'p-4'}`}>
           {items.map((item) => (
             <DesktopIcon key={item.id} item={item} />
           ))}
