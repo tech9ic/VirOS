@@ -1,11 +1,12 @@
 import * as Checkbox from '@radix-ui/react-checkbox';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { CheckIcon } from 'lucide-react';
-import { Ticket } from '@shared/schema';
-import { useMutation } from '@tanstack/react-query';
+import { Ticket, Tag } from '@shared/schema';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { Badge } from './ui/badge';
 
 interface TicketCardProps {
   ticket: Ticket;
@@ -14,6 +15,18 @@ interface TicketCardProps {
 
 export default function TicketCard({ ticket, formattedTime }: TicketCardProps) {
   const { toast } = useToast();
+  
+  // Fetch tags for this ticket
+  const { data: tags, isLoading: isLoadingTags } = useQuery<Tag[]>({
+    queryKey: ['/api/tickets', ticket.id, 'tags'],
+    queryFn: async () => {
+      const response = await fetch(`/api/tickets/${ticket.id}/tags`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch ticket tags');
+      }
+      return response.json();
+    },
+  });
   
   const updateStatusMutation = useMutation({
     mutationFn: async (newStatus: string) => {
@@ -87,7 +100,25 @@ export default function TicketCard({ ticket, formattedTime }: TicketCardProps) {
           </Tooltip.Provider>
         </div>
         
-        <p className="text-gray-600 mb-4 text-sm">{ticket.description}</p>
+        <p className="text-gray-600 mb-3 text-sm">{ticket.description}</p>
+        
+        {tags && tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {tags.map(tag => (
+              <Badge
+                key={tag.id}
+                style={{
+                  backgroundColor: tag.color,
+                  color: 'white',
+                }}
+                className="text-xs px-2 py-0.5"
+                variant="outline"
+              >
+                {tag.name}
+              </Badge>
+            ))}
+          </div>
+        )}
         
         <div className="flex justify-between items-center text-xs text-gray-500">
           <span className="capitalize">{ticket.category}</span>

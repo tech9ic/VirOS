@@ -1,20 +1,66 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import TicketCard from './TicketCard';
 import * as RadixTabs from '@radix-ui/react-tabs';
 import * as RadixSeparator from '@radix-ui/react-separator';
-import { Ticket } from '@shared/schema';
-import { SearchIcon, ArrowDownIcon, ArrowUpIcon, CheckCircle, CircleSlash, FilterIcon } from 'lucide-react';
+import * as RadixPopover from '@radix-ui/react-popover';
+import { Ticket, Tag } from '@shared/schema';
+import { SearchIcon, ArrowDownIcon, ArrowUpIcon, CheckCircle, CircleSlash, FilterIcon, XIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Badge } from './ui/badge';
 
 export default function TicketWall() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortOption, setSortOption] = useState('newest');
+  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
+  const [isTagFilterOpen, setIsTagFilterOpen] = useState(false);
 
+  // Fetch tickets and tags
   const { data: tickets, isLoading, error } = useQuery<Ticket[]>({
     queryKey: ['/api/tickets'],
   });
+  
+  const { data: tags } = useQuery<Tag[]>({
+    queryKey: ['/api/tags'],
+  });
+  
+  // Track which tickets have which tags
+  const [ticketTags, setTicketTags] = useState<Record<number, Tag[]>>({});
+  
+  // Fetch tags for each ticket
+  useEffect(() => {
+    if (!tickets) return;
+    
+    // For each ticket, fetch its tags if we don't already have them
+    tickets.forEach(ticket => {
+      if (!ticketTags[ticket.id]) {
+        fetch(`/api/tickets/${ticket.id}/tags`)
+          .then(res => res.json())
+          .then(tags => {
+            setTicketTags(prev => ({
+              ...prev,
+              [ticket.id]: tags
+            }));
+          })
+          .catch(err => console.error(`Error fetching tags for ticket ${ticket.id}:`, err));
+      }
+    });
+  }, [tickets, ticketTags]);
+  
+  // Toggle a tag filter
+  const toggleTagFilter = (tagId: number) => {
+    setSelectedTagIds(prev => 
+      prev.includes(tagId)
+        ? prev.filter(id => id !== tagId)
+        : [...prev, tagId]
+    );
+  };
+  
+  // Clear all tag filters
+  const clearTagFilters = () => {
+    setSelectedTagIds([]);
+  };
 
   // Filter and sort tickets
   const filteredAndSortedTickets = tickets?.filter(ticket => {
@@ -26,7 +72,15 @@ export default function TicketWall() {
     // Apply status filter
     const matchesStatus = statusFilter === 'all' || ticket.status === statusFilter;
     
-    return matchesSearch && matchesStatus;
+    // Apply tag filter
+    const matchesTags = selectedTagIds.length === 0 || 
+      (ticketTags[ticket.id] && 
+        selectedTagIds.some(tagId => 
+          ticketTags[ticket.id].some(tag => tag.id === tagId)
+        )
+      );
+    
+    return matchesSearch && matchesStatus && matchesTags;
   }).sort((a, b) => {
     // Apply sorting
     if (sortOption === 'newest') {
@@ -116,16 +170,86 @@ export default function TicketWall() {
           </RadixTabs.List>
         </div>
 
-        {/* Search */}
-        <div className="relative mb-6">
-          <input
-            type="text"
-            placeholder="Search tickets..."
-            className="minimal-input w-full pl-8 py-2 text-sm"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <SearchIcon className="absolute left-0 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+        {/* Search and filter bar */}
+        <div className="flex items-center gap-2 mb-6">
+          <div className="relative flex-grow">
+            <input
+              type="text"
+              placeholder="Search tickets..."
+              className="minimal-input w-full pl-8 py-2 text-sm"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <SearchIcon className="absolute left-0 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          </div>
+          
+          {/* Tag filter */}
+          <RadixPopover.Root open={isTagFilterOpen} onOpenChange={setIsTagFilterOpen}>
+            <RadixPopover.Trigger asChild>
+              <button
+                className={cn(
+                  "p-2 rounded-sm border border-gray-100 hover:bg-gray-50 transition-colors inline-flex items-center gap-1.5",
+                  selectedTagIds.length > 0 && "bg-primary/10 border-primary/20"
+                )}
+              >
+                <FilterIcon className="h-4 w-4 text-gray-500" />
+                <span className="text-xs text-gray-700">Filter by tag</span>
+                {selectedTagIds.length > 0 && (
+                  <Badge className="ml-1 bg-primary text-white">{selectedTagIds.length}</Badge>
+                )}
+              </button>
+            </RadixPopover.Trigger>
+            <RadixPopover.Portal>
+              <RadixPopover.Content
+                className="w-64 bg-white p-4 shadow-md border border-gray-100 rounded-sm z-50 animate-fade-in"
+                sideOffset={5}
+              >
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="font-medium text-sm">Filter by tags</h3>
+                  {selectedTagIds.length > 0 && (
+                    <button
+                      onClick={clearTagFilters}
+                      className="text-xs text-gray-500 hover:text-gray-700"
+                    >
+                      Clear all
+                    </button>
+                  )}
+                </div>
+                
+                {!tags || tags.length === 0 ? (
+                  <p className="text-sm text-gray-500">No tags available</p>
+                ) : (
+                  <div className="space-y-2">
+                    {tags.map(tag => (
+                      <div key={tag.id} className="flex items-center">
+                        <label className="flex items-center gap-2 text-sm cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={selectedTagIds.includes(tag.id)}
+                            onChange={() => toggleTagFilter(tag.id)}
+                            className="h-4 w-4 rounded-sm border-gray-300 text-primary focus:ring-primary"
+                          />
+                          <Badge
+                            style={{
+                              backgroundColor: selectedTagIds.includes(tag.id) ? tag.color : 'transparent',
+                              color: selectedTagIds.includes(tag.id) ? 'white' : tag.color,
+                              borderColor: tag.color,
+                            }}
+                            className="border-2"
+                            variant="outline"
+                          >
+                            {tag.name}
+                          </Badge>
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                <RadixPopover.Arrow className="fill-white" />
+              </RadixPopover.Content>
+            </RadixPopover.Portal>
+          </RadixPopover.Root>
         </div>
 
         {/* Loading state */}

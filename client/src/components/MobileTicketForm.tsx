@@ -7,11 +7,13 @@ import { Textarea } from '@/components/ui/textarea';
 import * as RadixSelect from '@radix-ui/react-select';
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { Button } from '@/components/ui/button';
-import { ChevronDownIcon, ChevronUpIcon, SendIcon, XIcon } from 'lucide-react';
+import { ChevronDownIcon, ChevronUpIcon, SendIcon, XIcon, TagIcon } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import TagSelector from './TagSelector';
 
 // Extend the insert schema with validation rules
 const ticketFormSchema = insertTicketSchema.extend({
@@ -27,6 +29,7 @@ interface MobileTicketFormProps {
 
 export default function MobileTicketForm({ isOpen, onClose }: MobileTicketFormProps) {
   const { toast } = useToast();
+  const [selectedTags, setSelectedTags] = useState<number[]>([]);
   
   const form = useForm<z.infer<typeof ticketFormSchema>>({
     resolver: zodResolver(ticketFormSchema),
@@ -37,6 +40,14 @@ export default function MobileTicketForm({ isOpen, onClose }: MobileTicketFormPr
       status: 'unsolved',
     },
   });
+  
+  const handleTagToggle = (tagId: number) => {
+    setSelectedTags(prev => 
+      prev.includes(tagId) 
+        ? prev.filter(id => id !== tagId)
+        : [...prev, tagId]
+    );
+  };
 
   const createTicketMutation = useMutation({
     mutationFn: async (data: z.infer<typeof ticketFormSchema>) => {
@@ -69,8 +80,29 @@ export default function MobileTicketForm({ isOpen, onClose }: MobileTicketFormPr
     },
   });
 
-  function onSubmit(data: z.infer<typeof ticketFormSchema>) {
-    createTicketMutation.mutate(data);
+  async function onSubmit(data: z.infer<typeof ticketFormSchema>) {
+    try {
+      // First create the ticket
+      const ticket = await createTicketMutation.mutateAsync(data);
+      
+      // Then add tags to the ticket if any were selected
+      if (selectedTags.length > 0) {
+        await Promise.all(
+          selectedTags.map(tagId => 
+            apiRequest('POST', `/api/tickets/${ticket.id}/tags`, { tagId })
+          )
+        );
+        
+        // Reset selected tags
+        setSelectedTags([]);
+        
+        // Invalidate the ticket tags query to ensure fresh data
+        queryClient.invalidateQueries({ queryKey: ['/api/tickets'] });
+      }
+    } catch (error) {
+      // Error is already handled in mutation error handler
+      console.error('Error in form submission:', error);
+    }
   }
 
   return (
@@ -184,6 +216,17 @@ export default function MobileTicketForm({ isOpen, onClose }: MobileTicketFormPr
                     </FormItem>
                   )}
                 />
+                
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <TagIcon className="h-4 w-4 text-neutral-dark" />
+                    <h3 className="text-sm font-medium text-neutral-dark">Tags</h3>
+                  </div>
+                  <TagSelector 
+                    selectedTags={selectedTags}
+                    onTagToggle={handleTagToggle}
+                  />
+                </div>
                 
                 <Button 
                   type="submit" 

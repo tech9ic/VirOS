@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertTicketSchema } from "@shared/schema";
+import { insertTicketSchema, insertTagSchema } from "@shared/schema";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { setupAuth } from "./auth";
@@ -166,6 +166,115 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(updatedTicket);
     } catch (error) {
       res.status(500).json({ message: "Failed to update ticket status" });
+    }
+  });
+
+  // Tags API
+  app.get("/api/tags", apiRateLimiter, async (req: Request, res: Response) => {
+    try {
+      const allTags = await storage.getAllTags();
+      
+      // Set cache-control headers for public caching
+      res.setHeader('Cache-Control', 'public, max-age=60'); // Cache for 60 seconds
+      res.json(allTags);
+    } catch (error) {
+      console.error("Error fetching tags:", error);
+      res.status(500).json({ message: "Failed to fetch tags" });
+    }
+  });
+
+  app.post("/api/tags", apiRateLimiter, async (req: Request, res: Response) => {
+    try {
+      const result = insertTagSchema.safeParse(req.body);
+      
+      if (!result.success) {
+        const validationError = fromZodError(result.error);
+        return res.status(400).json({ message: validationError.message });
+      }
+      
+      // Sanitize inputs
+      const sanitizedData = {
+        ...result.data,
+        name: result.data.name.trim(),
+        color: result.data.color.trim()
+      };
+      
+      const newTag = await storage.createTag(sanitizedData);
+      
+      // Set proper no-cache headers for POST requests
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      
+      res.status(201).json(newTag);
+    } catch (error) {
+      console.error("Error creating tag:", error);
+      res.status(500).json({ message: "Failed to create tag" });
+    }
+  });
+
+  // Ticket Tags API
+  app.get("/api/tickets/:id/tags", apiRateLimiter, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ticket ID" });
+      }
+      
+      const tags = await storage.getTicketTags(id);
+      
+      // Set cache-control headers
+      res.setHeader('Cache-Control', 'public, max-age=10'); // Cache for 10 seconds
+      res.json(tags);
+    } catch (error) {
+      console.error("Error fetching ticket tags:", error);
+      res.status(500).json({ message: "Failed to fetch ticket tags" });
+    }
+  });
+
+  app.post("/api/tickets/:id/tags", apiRateLimiter, async (req: Request, res: Response) => {
+    try {
+      const ticketId = parseInt(req.params.id);
+      const { tagId } = req.body;
+      
+      if (isNaN(ticketId) || typeof tagId !== 'number') {
+        return res.status(400).json({ message: "Invalid ticket ID or tag ID" });
+      }
+      
+      await storage.addTagToTicket(ticketId, tagId);
+      
+      // Set proper no-cache headers for POST requests
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      
+      res.status(201).send();
+    } catch (error) {
+      console.error("Error adding tag to ticket:", error);
+      res.status(500).json({ message: "Failed to add tag to ticket" });
+    }
+  });
+
+  app.delete("/api/tickets/:ticketId/tags/:tagId", apiRateLimiter, async (req: Request, res: Response) => {
+    try {
+      const ticketId = parseInt(req.params.ticketId);
+      const tagId = parseInt(req.params.tagId);
+      
+      if (isNaN(ticketId) || isNaN(tagId)) {
+        return res.status(400).json({ message: "Invalid ticket ID or tag ID" });
+      }
+      
+      await storage.removeTagFromTicket(ticketId, tagId);
+      
+      // Set proper no-cache headers for DELETE requests
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error removing tag from ticket:", error);
+      res.status(500).json({ message: "Failed to remove tag from ticket" });
     }
   });
 
