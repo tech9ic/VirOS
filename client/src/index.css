@@ -8,7 +8,7 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased bg-[#f5f5f7] text-[#1d1d1f];
     text-rendering: optimizeSpeed;
   }
   
@@ -18,34 +18,54 @@
   }
 }
 
-/* Minimal design system overrides */
+/* Apple OS inspired design system */
 @layer components {
+  /* Forum-style ticket card */
   .ticket-card {
-    @apply relative bg-white border-l-4 shadow-sm transition-all;
+    @apply relative bg-white border border-gray-200 rounded-lg shadow-sm transition-all hover:shadow-md;
   }
   
   .ticket-solved {
-    @apply border-l-primary;
+    @apply border-black border-opacity-20;
   }
   
   .ticket-unsolved {
-    @apply border-l-accent;
+    @apply border-black border-opacity-10;
   }
   
+  /* Apple-style inputs */
   .minimal-input {
-    @apply border-0 border-b border-gray-200 rounded-none px-0 py-2 focus:border-primary focus:ring-0;
+    @apply bg-[#f5f5f7] border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-black focus:border-black text-sm;
   }
   
   .minimal-select {
-    @apply border-0 border-b border-gray-200 rounded-none px-0 py-2;
+    @apply bg-[#f5f5f7] border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-black focus:border-black text-sm;
   }
   
+  /* Apple-style buttons */
   .minimal-btn {
-    @apply bg-transparent hover:bg-primary/5 text-primary border-0 rounded-none px-3 py-2 flex items-center gap-2 transition-colors;
+    @apply bg-[#f5f5f7] text-black border border-gray-300 rounded-md px-4 py-2 flex items-center gap-2 transition-colors hover:bg-gray-200;
   }
   
   .minimal-btn-primary {
-    @apply bg-primary text-white hover:bg-primary/90 rounded-none;
+    @apply bg-black text-white hover:bg-gray-800 rounded-md border-0;
+  }
+  
+  /* Forum elements */
+  .forum-thread {
+    @apply border-b border-gray-200 pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0;
+  }
+  
+  .forum-header {
+    @apply mb-6 pb-3 border-b border-gray-200;
+  }
+  
+  .forum-author {
+    @apply text-xs text-gray-500 flex items-center gap-1;
+  }
+  
+  .apple-badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset;
   }
 }
 

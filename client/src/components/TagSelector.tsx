@@ -17,14 +17,14 @@ export default function TagSelector({ selectedTags, onTagToggle }: TagSelectorPr
   if (isLoading) {
     return (
       <div className="flex justify-center py-4">
-        <Loader2 className="h-5 w-5 animate-spin text-primary" />
+        <Loader2 className="h-5 w-5 animate-spin text-black" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-sm text-destructive py-2">
+      <div className="text-sm text-red-500 py-2">
         Failed to load tags: {error.message}
       </div>
     );
@@ -32,7 +32,7 @@ export default function TagSelector({ selectedTags, onTagToggle }: TagSelectorPr
 
   if (!tags || tags.length === 0) {
     return (
-      <div className="text-sm text-muted-foreground py-2">
+      <div className="text-sm text-gray-500 py-2">
         No tags available
       </div>
     );
@@ -44,16 +44,12 @@ export default function TagSelector({ selectedTags, onTagToggle }: TagSelectorPr
         <Badge
           key={tag.id}
           onClick={() => onTagToggle(tag.id)}
-          style={{
-            backgroundColor: selectedTags.includes(tag.id) ? tag.color : 'transparent',
-            color: selectedTags.includes(tag.id) ? 'white' : tag.color,
-            borderColor: tag.color,
-          }}
           className={cn(
-            "cursor-pointer border-2 hover:bg-opacity-90 transition-colors",
-            selectedTags.includes(tag.id) ? "" : "bg-transparent"
+            "cursor-pointer transition-colors rounded-full px-3 py-1",
+            selectedTags.includes(tag.id) 
+              ? "bg-black text-white" 
+              : "bg-white text-black border border-gray-300"
           )}
-          variant="outline"
         >
           {tag.name}
         </Badge>

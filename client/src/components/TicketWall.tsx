@@ -111,41 +111,52 @@ export default function TicketWall() {
 
   return (
     <div className="space-y-4">
+      <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mb-6">
+        <h1 className="text-2xl font-bold text-black mb-1">Forum Threads</h1>
+        <p className="text-gray-500 text-sm">Browse and filter anonymous tickets</p>
+      </div>
+    
       {/* Tabs for status filtering */}
       <RadixTabs.Root value={statusFilter} onValueChange={setStatusFilter} className="w-full">
-        <div className="flex items-center justify-between mb-4">
-          <RadixTabs.List className="flex gap-4 items-center border-b border-gray-100 w-full">
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 mb-4">
+          <RadixTabs.List className="flex gap-2 items-center w-full mb-4">
             <RadixTabs.Trigger 
               value="all" 
               className={cn(
-                "pb-2 px-1 text-sm font-medium border-b-2 border-transparent transition-colors",
-                statusFilter === 'all' ? "border-primary text-primary" : "text-gray-500 hover:text-gray-700"
+                "py-1.5 px-3 text-sm font-medium rounded-full transition-colors",
+                statusFilter === 'all' 
+                  ? "bg-black text-white" 
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               )}
             >
-              All Tickets
-              <span className="ml-1.5 text-xs font-normal text-gray-500">{totalTickets}</span>
+              All Threads
+              <span className="ml-1.5 bg-white bg-opacity-20 px-1.5 py-0.5 rounded-full text-xs font-normal text-white">{totalTickets}</span>
             </RadixTabs.Trigger>
             
             <RadixTabs.Trigger 
               value="unsolved" 
               className={cn(
-                "pb-2 px-1 text-sm font-medium border-b-2 border-transparent transition-colors",
-                statusFilter === 'unsolved' ? "border-primary text-primary" : "text-gray-500 hover:text-gray-700"
+                "py-1.5 px-3 text-sm font-medium rounded-full transition-colors",
+                statusFilter === 'unsolved' 
+                  ? "bg-black text-white" 
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               )}
             >
               Unsolved
-              <span className="ml-1.5 text-xs font-normal text-gray-500">{unsolvedTickets}</span>
+              <span className="ml-1.5 bg-white bg-opacity-20 px-1.5 py-0.5 rounded-full text-xs font-normal text-white">{unsolvedTickets}</span>
             </RadixTabs.Trigger>
             
             <RadixTabs.Trigger 
               value="solved" 
               className={cn(
-                "pb-2 px-1 text-sm font-medium border-b-2 border-transparent transition-colors",
-                statusFilter === 'solved' ? "border-primary text-primary" : "text-gray-500 hover:text-gray-700"
+                "py-1.5 px-3 text-sm font-medium rounded-full transition-colors",
+                statusFilter === 'solved' 
+                  ? "bg-black text-white" 
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               )}
             >
               Solved
-              <span className="ml-1.5 text-xs font-normal text-gray-500">{solvedTickets}</span>
+              <span className="ml-1.5 bg-white bg-opacity-20 px-1.5 py-0.5 rounded-full text-xs font-normal text-white">{solvedTickets}</span>
             </RadixTabs.Trigger>
             
             <div className="flex-grow"></div>
@@ -153,34 +164,33 @@ export default function TicketWall() {
             {/* Sort toggle */}
             <button 
               onClick={() => setSortOption(sortOption === 'newest' ? 'oldest' : 'newest')}
-              className="text-gray-500 hover:text-gray-700 flex items-center gap-1 text-xs pb-2"
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full py-1.5 px-3 flex items-center gap-1 text-xs transition-colors"
             >
               {sortOption === 'newest' ? (
                 <>
                   <ArrowDownIcon className="h-3.5 w-3.5" />
-                  <span>Newest</span>
+                  <span>Newest First</span>
                 </>
               ) : (
                 <>
                   <ArrowUpIcon className="h-3.5 w-3.5" />
-                  <span>Oldest</span>
+                  <span>Oldest First</span>
                 </>
               )}
             </button>
           </RadixTabs.List>
-        </div>
 
         {/* Search and filter bar */}
         <div className="flex items-center gap-2 mb-6">
           <div className="relative flex-grow">
             <input
               type="text"
-              placeholder="Search tickets..."
+              placeholder="Search threads..."
               className="minimal-input w-full pl-8 py-2 text-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <SearchIcon className="absolute left-0 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           </div>
           
           {/* Tag filter */}
@@ -188,28 +198,28 @@ export default function TicketWall() {
             <RadixPopover.Trigger asChild>
               <button
                 className={cn(
-                  "p-2 rounded-sm border border-gray-100 hover:bg-gray-50 transition-colors inline-flex items-center gap-1.5",
-                  selectedTagIds.length > 0 && "bg-primary/10 border-primary/20"
+                  "px-3 py-2 rounded-md border border-gray-300 bg-[#f5f5f7] hover:bg-gray-200 transition-colors inline-flex items-center gap-1.5",
+                  selectedTagIds.length > 0 && "bg-black bg-opacity-5 border-black border-opacity-20"
                 )}
               >
-                <FilterIcon className="h-4 w-4 text-gray-500" />
-                <span className="text-xs text-gray-700">Filter by tag</span>
+                <FilterIcon className="h-4 w-4 text-black" />
+                <span className="text-xs text-black">Filter by tag</span>
                 {selectedTagIds.length > 0 && (
-                  <Badge className="ml-1 bg-primary text-white">{selectedTagIds.length}</Badge>
+                  <Badge className="ml-1 bg-black text-white rounded-full">{selectedTagIds.length}</Badge>
                 )}
               </button>
             </RadixPopover.Trigger>
             <RadixPopover.Portal>
               <RadixPopover.Content
-                className="w-64 bg-white p-4 shadow-md border border-gray-100 rounded-sm z-50 animate-fade-in"
+                className="w-64 bg-white p-4 shadow-md border border-gray-200 rounded-lg z-50 animate-fade-in"
                 sideOffset={5}
               >
                 <div className="flex justify-between items-center mb-3">
-                  <h3 className="font-medium text-sm">Filter by tags</h3>
+                  <h3 className="font-medium text-sm text-black">Filter by tags</h3>
                   {selectedTagIds.length > 0 && (
                     <button
                       onClick={clearTagFilters}
-                      className="text-xs text-gray-500 hover:text-gray-700"
+                      className="text-xs text-gray-500 hover:text-black px-2 py-1 rounded-full hover:bg-gray-100"
                     >
                       Clear all
                     </button>
@@ -222,21 +232,20 @@ export default function TicketWall() {
                   <div className="space-y-2">
                     {tags.map(tag => (
                       <div key={tag.id} className="flex items-center">
-                        <label className="flex items-center gap-2 text-sm cursor-pointer">
+                        <label className="flex items-center gap-2 text-sm cursor-pointer w-full py-1 px-1 hover:bg-gray-50 rounded-md">
                           <input
                             type="checkbox"
                             checked={selectedTagIds.includes(tag.id)}
                             onChange={() => toggleTagFilter(tag.id)}
-                            className="h-4 w-4 rounded-sm border-gray-300 text-primary focus:ring-primary"
+                            className="h-4 w-4 rounded-md border-gray-300 text-black focus:ring-black"
                           />
                           <Badge
-                            style={{
-                              backgroundColor: selectedTagIds.includes(tag.id) ? tag.color : 'transparent',
-                              color: selectedTagIds.includes(tag.id) ? 'white' : tag.color,
-                              borderColor: tag.color,
-                            }}
-                            className="border-2"
-                            variant="outline"
+                            className={cn(
+                              "rounded-full transition-colors",
+                              selectedTagIds.includes(tag.id) 
+                                ? "bg-black text-white" 
+                                : "bg-gray-100 text-black"
+                            )}
                           >
                             {tag.name}
                           </Badge>
@@ -255,25 +264,27 @@ export default function TicketWall() {
         {/* Loading state */}
         {isLoading && (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-5 w-5 border-t-2 border-primary border-r-2 border-b-2 border-gray-200"></div>
-            <p className="mt-3 text-sm text-gray-500">Loading tickets...</p>
+            <div className="inline-block animate-spin rounded-full h-6 w-6 border-2 border-black border-t-transparent"></div>
+            <p className="mt-3 text-sm text-gray-600">Loading threads...</p>
           </div>
         )}
 
         {/* Error state */}
         {error && (
-          <div className="text-center py-12">
-            <p className="text-accent font-medium">Error loading tickets.</p>
-            <p className="text-sm text-gray-500 mt-2">Please try again later.</p>
+          <div className="text-center py-12 bg-red-50 rounded-lg border border-red-100">
+            <p className="text-red-600 font-medium">Error loading threads</p>
+            <p className="text-sm text-red-500 mt-2">Please try again later</p>
           </div>
         )}
 
         {/* Empty state */}
         {!isLoading && !error && filteredAndSortedTickets?.length === 0 && (
-          <div className="text-center py-12 border border-dashed border-gray-200">
-            <div className="text-4xl text-gray-300 mb-3">🎫</div>
-            <h3 className="text-base font-medium text-gray-500">No tickets found</h3>
-            <p className="text-sm text-gray-400">Be the first to create a ticket!</p>
+          <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+              <span className="text-2xl">💬</span>
+            </div>
+            <h3 className="text-base font-medium text-black mb-1">No threads found</h3>
+            <p className="text-sm text-gray-500 mb-4">Start the conversation by creating a new thread</p>
           </div>
         )}
 
@@ -289,6 +300,7 @@ export default function TicketWall() {
             ))}
           </div>
         )}
+        </div>
       </RadixTabs.Root>
     </div>
   );

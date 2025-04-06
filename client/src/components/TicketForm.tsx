@@ -97,8 +97,11 @@ export default function TicketForm() {
   }
 
   return (
-    <div className="bg-white p-6 sticky top-8 border-l border-t border-r border-gray-100">
-      <h2 className="text-lg font-medium mb-6 text-neutral-dark">Create a Ticket</h2>
+    <div className="bg-white p-6 sticky top-8 rounded-lg border border-gray-200 shadow-sm">
+      <div className="forum-header">
+        <h2 className="text-lg font-semibold text-black mb-1">New Thread</h2>
+        <p className="text-sm text-gray-500">Share your question or issue</p>
+      </div>
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
@@ -107,7 +110,7 @@ export default function TicketForm() {
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-neutral-dark">Title</FormLabel>
+                <FormLabel className="text-sm font-medium text-black">Thread Title</FormLabel>
                 <FormControl>
                   <input 
                     placeholder="What's your issue?" 
@@ -115,7 +118,7 @@ export default function TicketForm() {
                     {...field} 
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs text-red-500" />
               </FormItem>
             )}
           />
@@ -125,15 +128,15 @@ export default function TicketForm() {
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-neutral-dark">Description</FormLabel>
+                <FormLabel className="text-sm font-medium text-black">Content</FormLabel>
                 <FormControl>
                   <Textarea 
-                    placeholder="Provide details..." 
-                    className="min-h-24 resize-none border-0 focus:ring-0 p-0 shadow-none text-sm"
+                    placeholder="Provide details about your question or issue..." 
+                    className="minimal-input min-h-28 resize-none rounded-md text-sm"
                     {...field} 
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs text-red-500" />
               </FormItem>
             )}
           />
@@ -143,7 +146,7 @@ export default function TicketForm() {
             name="category"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-neutral-dark">Category</FormLabel>
+                <FormLabel className="text-sm font-medium text-black">Category</FormLabel>
                 <RadixSelect.Root value={field.value} onValueChange={field.onChange}>
                   <FormControl>
                     <RadixSelect.Trigger className="inline-flex items-center justify-between minimal-select w-full text-sm">
@@ -156,7 +159,7 @@ export default function TicketForm() {
                   <RadixSelect.Portal>
                     <RadixSelect.Content 
                       position="popper" 
-                      className="overflow-hidden bg-white rounded-sm shadow-md border border-gray-100 min-w-[8rem] animate-fade-in"
+                      className="overflow-hidden bg-white rounded-md shadow-md border border-gray-200 min-w-[8rem] animate-fade-in"
                     >
                       <RadixSelect.ScrollUpButton className="flex items-center justify-center h-6 bg-white text-gray-700 cursor-default">
                         <ChevronUpIcon />
@@ -173,7 +176,7 @@ export default function TicketForm() {
                               key={option.value}
                               value={option.value}
                               className={cn(
-                                "relative flex items-center px-6 py-2 text-sm rounded-sm select-none",
+                                "relative flex items-center px-4 py-2 text-sm rounded-md select-none",
                                 "data-[highlighted]:outline-none data-[highlighted]:bg-gray-50 data-[state=checked]:font-medium"
                               )}
                             >
@@ -188,15 +191,15 @@ export default function TicketForm() {
                     </RadixSelect.Content>
                   </RadixSelect.Portal>
                 </RadixSelect.Root>
-                <FormMessage />
+                <FormMessage className="text-xs text-red-500" />
               </FormItem>
             )}
           />
           
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <TagIcon className="h-4 w-4 text-neutral-dark" />
-              <h3 className="text-sm font-medium text-neutral-dark">Tags</h3>
+          <div className="border p-4 border-gray-200 rounded-md bg-[#f5f5f7]">
+            <div className="flex items-center gap-2 mb-3">
+              <TagIcon className="h-4 w-4 text-black" />
+              <h3 className="text-sm font-medium text-black">Tags</h3>
             </div>
             <TagSelector 
               selectedTags={selectedTags}
@@ -206,13 +209,18 @@ export default function TicketForm() {
           
           <Button 
             type="submit" 
-            className="minimal-btn-primary w-full flex justify-center gap-2"
+            className="minimal-btn-primary w-full flex justify-center gap-2 py-2.5"
             disabled={createTicketMutation.isPending}
           >
-            {createTicketMutation.isPending ? 'Posting...' : (
+            {createTicketMutation.isPending ? (
+              <div className="flex items-center">
+                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                <span>Posting...</span>
+              </div>
+            ) : (
               <>
                 <SendIcon className="h-4 w-4" />
-                <span>Post Ticket</span>
+                <span>Post New Thread</span>
               </>
             )}
           </Button>

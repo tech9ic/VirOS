@@ -1,6 +1,6 @@
 import * as Checkbox from '@radix-ui/react-checkbox';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { CheckIcon } from 'lucide-react';
+import { CheckIcon, MessageCircle, Clock, User } from 'lucide-react';
 import { Ticket, Tag } from '@shared/schema';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
@@ -57,62 +57,88 @@ export default function TicketCard({ ticket, formattedTime }: TicketCardProps) {
   return (
     <div 
       className={cn(
-        "ticket-card",
+        "ticket-card forum-thread",
         ticket.status === 'solved' ? "ticket-solved" : "ticket-unsolved"
       )}
     >
-      <div className="p-4">
-        <div className="flex justify-between items-start mb-3 gap-2">
-          <h3 className="font-medium text-neutral-dark">{ticket.title}</h3>
+      <div className="p-5">
+        {/* Forum-like header */}
+        <div className="flex justify-between items-start mb-3">
+          <div className="flex-1">
+            <h3 className="font-semibold text-black text-base mb-1">{ticket.title}</h3>
+            <div className="forum-author mb-2">
+              <User className="h-3 w-3 mr-1" />
+              <span>Anonymous</span>
+              <span className="mx-1.5">•</span>
+              <Clock className="h-3 w-3 mr-1" />
+              <span>{formattedTime}</span>
+              <span className="mx-1.5">•</span>
+              <span className="capitalize">{ticket.category}</span>
+            </div>
+          </div>
           
+          {/* Status toggle */}
           <Tooltip.Provider>
             <Tooltip.Root>
               <Tooltip.Trigger asChild>
-                <div className="relative top-1">
+                <div>
                   <Checkbox.Root
                     className={cn(
-                      "flex h-5 w-5 items-center justify-center border transition-colors",
+                      "flex h-6 w-6 items-center justify-center rounded-md transition-colors",
                       ticket.status === 'solved' 
-                        ? "border-primary bg-primary/10" 
-                        : "border-gray-300 bg-transparent"
+                        ? "bg-black" 
+                        : "border border-gray-300 bg-[#f5f5f7]"
                     )}
                     checked={ticket.status === 'solved'}
                     onCheckedChange={toggleStatus}
                     disabled={updateStatusMutation.isPending}
                   >
                     <Checkbox.Indicator>
-                      <CheckIcon className="h-3.5 w-3.5 text-primary" />
+                      <CheckIcon className="h-4 w-4 text-white" />
                     </Checkbox.Indicator>
                   </Checkbox.Root>
                 </div>
               </Tooltip.Trigger>
               <Tooltip.Portal>
                 <Tooltip.Content 
-                  className="z-50 overflow-hidden rounded-sm bg-slate-900 px-3 py-1.5 text-xs text-white animate-fade-in"
+                  className="z-50 overflow-hidden rounded-md bg-black px-3 py-1.5 text-xs text-white animate-fade-in"
                   side="top"
                   sideOffset={5}
                 >
                   Mark as {ticket.status === 'solved' ? 'unsolved' : 'solved'}
-                  <Tooltip.Arrow className="fill-slate-900" />
+                  <Tooltip.Arrow className="fill-black" />
                 </Tooltip.Content>
               </Tooltip.Portal>
             </Tooltip.Root>
           </Tooltip.Provider>
         </div>
         
-        <p className="text-gray-600 mb-3 text-sm">{ticket.description}</p>
+        {/* Status badge */}
+        <div className="mb-4">
+          <Badge 
+            className={cn(
+              "apple-badge",
+              ticket.status === 'solved' 
+                ? "bg-black bg-opacity-10 text-black ring-black ring-opacity-20" 
+                : "bg-gray-100 text-gray-500 ring-gray-200"
+            )}
+          >
+            {ticket.status === 'solved' ? 'Solved' : 'Unsolved'}
+          </Badge>
+        </div>
         
+        {/* Content */}
+        <div className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
+          <p className="text-gray-800 text-sm leading-relaxed">{ticket.description}</p>
+        </div>
+        
+        {/* Tags */}
         {tags && tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-3">
+          <div className="flex flex-wrap gap-1.5 mb-2">
             {tags.map(tag => (
               <Badge
                 key={tag.id}
-                style={{
-                  backgroundColor: tag.color,
-                  color: 'white',
-                }}
-                className="text-xs px-2 py-0.5"
-                variant="outline"
+                className="text-xs font-medium bg-black text-white bg-opacity-80 py-0.5 px-2.5 rounded-full"
               >
                 {tag.name}
               </Badge>
@@ -120,9 +146,16 @@ export default function TicketCard({ ticket, formattedTime }: TicketCardProps) {
           </div>
         )}
         
-        <div className="flex justify-between items-center text-xs text-gray-500">
-          <span className="capitalize">{ticket.category}</span>
-          <span>{formattedTime}</span>
+        {/* Forum-like footer */}
+        <div className="flex justify-between items-center text-xs text-gray-500 mt-3 pt-3 border-t border-gray-200">
+          <div className="flex items-center">
+            <MessageCircle className="h-3.5 w-3.5 mr-1.5" />
+            <span>0 replies</span>
+          </div>
+          
+          <div className="text-xs text-gray-400">
+            Ticket #{ticket.id}
+          </div>
         </div>
       </div>
     </div>

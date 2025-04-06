@@ -110,16 +110,21 @@ export default function MobileTicketForm({ isOpen, onClose }: MobileTicketFormPr
       <RadixDialog.Portal>
         <RadixDialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 data-[state=open]:animate-fade-in" />
         <RadixDialog.Content 
-          className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] bg-white p-0 shadow-md focus:outline-none data-[state=open]:animate-fade-in"
+          className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] bg-white p-0 shadow-lg rounded-lg border border-gray-200 focus:outline-none data-[state=open]:animate-fade-in"
         >
-          <div className="p-5">
-            <div className="flex justify-between items-center mb-5">
-              <RadixDialog.Title className="text-base font-medium text-neutral-dark">
-                Create a Ticket
-              </RadixDialog.Title>
+          <div className="p-6">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <RadixDialog.Title className="text-lg font-semibold text-black">
+                  New Thread
+                </RadixDialog.Title>
+                <RadixDialog.Description className="text-sm text-gray-500">
+                  Share your question or issue
+                </RadixDialog.Description>
+              </div>
               <RadixDialog.Close asChild>
-                <button className="text-gray-400 hover:text-gray-500">
-                  <XIcon className="h-4 w-4" />
+                <button className="text-gray-400 hover:text-black rounded-full p-1 hover:bg-gray-100 transition-colors">
+                  <XIcon className="h-5 w-5" />
                 </button>
               </RadixDialog.Close>
             </div>
@@ -131,7 +136,7 @@ export default function MobileTicketForm({ isOpen, onClose }: MobileTicketFormPr
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium text-neutral-dark">Title</FormLabel>
+                      <FormLabel className="text-sm font-medium text-black">Thread Title</FormLabel>
                       <FormControl>
                         <input 
                           placeholder="What's your issue?" 
@@ -139,7 +144,7 @@ export default function MobileTicketForm({ isOpen, onClose }: MobileTicketFormPr
                           {...field} 
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs text-red-500" />
                     </FormItem>
                   )}
                 />
@@ -149,15 +154,15 @@ export default function MobileTicketForm({ isOpen, onClose }: MobileTicketFormPr
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium text-neutral-dark">Description</FormLabel>
+                      <FormLabel className="text-sm font-medium text-black">Content</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Provide details..." 
-                          className="min-h-24 resize-none border-0 focus:ring-0 p-0 shadow-none text-sm"
+                          placeholder="Provide details about your question or issue..." 
+                          className="minimal-input min-h-28 resize-none rounded-md text-sm"
                           {...field} 
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs text-red-500" />
                     </FormItem>
                   )}
                 />
@@ -167,7 +172,7 @@ export default function MobileTicketForm({ isOpen, onClose }: MobileTicketFormPr
                   name="category"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium text-neutral-dark">Category</FormLabel>
+                      <FormLabel className="text-sm font-medium text-black">Category</FormLabel>
                       <RadixSelect.Root value={field.value} onValueChange={field.onChange}>
                         <FormControl>
                           <RadixSelect.Trigger className="inline-flex items-center justify-between minimal-select w-full text-sm">
@@ -180,7 +185,7 @@ export default function MobileTicketForm({ isOpen, onClose }: MobileTicketFormPr
                         <RadixSelect.Portal>
                           <RadixSelect.Content 
                             position="popper" 
-                            className="overflow-hidden bg-white rounded-sm shadow-md border border-gray-100 min-w-[8rem] animate-fade-in"
+                            className="overflow-hidden bg-white rounded-md shadow-md border border-gray-200 min-w-[8rem] animate-fade-in"
                           >
                             <RadixSelect.ScrollUpButton className="flex items-center justify-center h-6 bg-white text-gray-700 cursor-default">
                               <ChevronUpIcon />
@@ -197,7 +202,7 @@ export default function MobileTicketForm({ isOpen, onClose }: MobileTicketFormPr
                                     key={option.value}
                                     value={option.value}
                                     className={cn(
-                                      "relative flex items-center px-6 py-2 text-sm rounded-sm select-none",
+                                      "relative flex items-center px-4 py-2 text-sm rounded-md select-none",
                                       "data-[highlighted]:outline-none data-[highlighted]:bg-gray-50 data-[state=checked]:font-medium"
                                     )}
                                   >
@@ -212,15 +217,15 @@ export default function MobileTicketForm({ isOpen, onClose }: MobileTicketFormPr
                           </RadixSelect.Content>
                         </RadixSelect.Portal>
                       </RadixSelect.Root>
-                      <FormMessage />
+                      <FormMessage className="text-xs text-red-500" />
                     </FormItem>
                   )}
                 />
                 
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <TagIcon className="h-4 w-4 text-neutral-dark" />
-                    <h3 className="text-sm font-medium text-neutral-dark">Tags</h3>
+                <div className="border p-4 border-gray-200 rounded-md bg-[#f5f5f7]">
+                  <div className="flex items-center gap-2 mb-3">
+                    <TagIcon className="h-4 w-4 text-black" />
+                    <h3 className="text-sm font-medium text-black">Tags</h3>
                   </div>
                   <TagSelector 
                     selectedTags={selectedTags}
@@ -230,13 +235,18 @@ export default function MobileTicketForm({ isOpen, onClose }: MobileTicketFormPr
                 
                 <Button 
                   type="submit" 
-                  className="minimal-btn-primary w-full flex justify-center gap-2 mt-2"
+                  className="minimal-btn-primary w-full flex justify-center gap-2 py-2.5 mt-2"
                   disabled={createTicketMutation.isPending}
                 >
-                  {createTicketMutation.isPending ? 'Posting...' : (
+                  {createTicketMutation.isPending ? (
+                    <div className="flex items-center">
+                      <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                      <span>Posting...</span>
+                    </div>
+                  ) : (
                     <>
                       <SendIcon className="h-4 w-4" />
-                      <span>Post Ticket</span>
+                      <span>Post New Thread</span>
                     </>
                   )}
                 </Button>
