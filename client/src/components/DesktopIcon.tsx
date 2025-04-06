@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { useStore } from '../store';
 import { DesktopItem } from '../types';
-import { FolderIcon, MonitorIcon, FileTextIcon, FileIcon, TrashIcon, TerminalIcon, Edit3Icon, Trash2Icon, ImageIcon } from 'lucide-react';
+import { FolderIcon, MonitorIcon, FileTextIcon, FileIcon, TrashIcon, TerminalIcon, Edit3Icon, Trash2Icon, ImageIcon, RefreshCcwIcon } from 'lucide-react';
 import TerminalWindow from './TerminalWindow';
 
 interface DesktopIconProps {
@@ -34,10 +34,13 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
     accept: 'DESKTOP_ITEM',
     drop: (droppedItem: { id: string, type: string }) => {
       if (item.type === 'trash' && droppedItem.id !== item.id) {
-        // Show delete confirmation popup
-        setShowDeleteConfirm(true);
-        // Store the ID to delete in a window variable 
-        window.itemToDelete = droppedItem.id;
+        // Move the item to buffer directly
+        const state = useStore.getState();
+        const droppedItemObject = state.items.find(i => i.id === droppedItem.id);
+        
+        if (confirm(`Move "${droppedItemObject?.name || 'item'}" to Buffer?`)) {
+          state.moveToBuffer(droppedItem.id);
+        }
       }
     },
     collect: (monitor) => ({
@@ -64,8 +67,30 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
           {bufferItems.map((bufferItem) => (
             <div 
               key={bufferItem.id} 
-              className="flex flex-col items-center p-2 hover:bg-zinc-900 cursor-pointer transition-colors"
+              className="flex flex-col items-center p-2 hover:bg-zinc-900 cursor-pointer transition-colors relative group"
             >
+              <div className="absolute right-1 top-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button 
+                  className="p-1 bg-blue-600 hover:bg-blue-500 rounded-full"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // Restore this item
+                    useStore.getState().restoreFromBuffer(bufferItem.id);
+                    
+                    // Close and reopen the window to refresh content
+                    const windows = useStore.getState().windows;
+                    const bufferWindow = windows.find(w => w.title === 'Buffer');
+                    if (bufferWindow) {
+                      useStore.getState().closeWindow(bufferWindow.id);
+                      // Re-open updated buffer
+                      setTimeout(() => handleDoubleClick(), 100);
+                    }
+                  }}
+                  title="Restore item"
+                >
+                  <RefreshCcwIcon size={12} className="text-white" strokeWidth={1} />
+                </button>
+              </div>
               <div className="flex items-center justify-center p-2">
                 {bufferItem.type === 'folder' && <FolderIcon size={24} className="text-white" strokeWidth={1} />}
                 {bufferItem.type === 'file' && <FileTextIcon size={24} className="text-white" strokeWidth={1} />}

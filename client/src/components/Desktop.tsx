@@ -6,7 +6,7 @@ import WindowManager from './WindowManager';
 import TerminalWindow from './TerminalWindow';
 import { Position, DesktopItem } from '../types';
 import { v4 as uuidv4 } from 'uuid';
-import { FolderIcon, FileTextIcon, TerminalIcon, SunIcon, MoonIcon } from 'lucide-react';
+import { FolderIcon, FileTextIcon, TerminalIcon, SunIcon, MoonIcon, TrashIcon } from 'lucide-react';
 
 // Extend Window interface to include our custom property
 declare global {

@@ -134,6 +134,12 @@ const defaultItems: DesktopItem[] = [
   }
 ];
 
+// Function to clear localStorage and reset state
+export function resetStorage() {
+  localStorage.removeItem('os-storage');
+  window.location.reload();
+}
+
 export const useStore = create<State>()(
   persist(
     (set, get) => ({
