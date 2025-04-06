@@ -3,10 +3,9 @@ import { useDrop } from 'react-dnd';
 import { useStore } from '../store';
 import DesktopIcon from './DesktopIcon';
 import WindowManager from './WindowManager';
-import TaskBar from './TaskBar';
 import { Position, DesktopItem } from '../types';
 import { v4 as uuidv4 } from 'uuid';
-import { FolderIcon, FileTextIcon } from 'lucide-react';
+import { FolderIcon, FileTextIcon, TerminalIcon } from 'lucide-react';
 
 const Desktop = () => {
   const { items, updateItemPosition, windows, logout, addItem } = useStore();
@@ -135,7 +134,10 @@ const Desktop = () => {
     >
       {/* Top status bar */}
       <div className="absolute top-0 left-0 right-0 h-8 bg-black flex justify-between items-center px-4 z-10 border-b border-zinc-800">
-        <div className="flex items-center text-white text-xs opacity-70">TERMINAL_OS</div>
+        <div className="flex items-center text-white text-xs">
+          <TerminalIcon size={14} className="mr-1" strokeWidth={1} />
+          <span className="opacity-70">_</span>
+        </div>
         <div className="flex items-center space-x-4 text-white text-xs opacity-70">
           <span>{formattedTime}</span>
           <button 
@@ -147,7 +149,7 @@ const Desktop = () => {
         </div>
       </div>
       
-      <div className="absolute inset-0 pt-8 pb-10">
+      <div className="absolute inset-0 pt-8">
         {/* Desktop items */}
         <div className="absolute top-0 left-0 bottom-0 right-0 p-4">
           {items.map((item) => (
@@ -157,8 +159,6 @@ const Desktop = () => {
       </div>
       
       <WindowManager />
-      
-      <TaskBar />
 
       {/* Context Menu - with functional buttons */}
       {contextMenu.show && (

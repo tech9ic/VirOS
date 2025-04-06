@@ -16,6 +16,7 @@ interface State {
   removeItem: (id: string) => void;
   updateItemPosition: (id: string, x: number, y: number) => void;
   updateItemContent: (id: string, content: string) => void;
+  updateItemName: (id: string, name: string) => void;
   
   // Windows management
   windows: Window[];
@@ -118,6 +119,15 @@ export const useStore = create<State>()(
           items: state.items.map((item) =>
             item.id === id
               ? { ...item, content }
+              : item
+          ),
+        }));
+      },
+      updateItemName: (id, name) => {
+        set((state) => ({
+          items: state.items.map((item) =>
+            item.id === id
+              ? { ...item, name }
               : item
           ),
         }));

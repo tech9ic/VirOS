@@ -1,3 +1,4 @@
+import { useState, useRef } from 'react';
 import { useDrag } from 'react-dnd';
 import { useStore } from '../store';
 import { DesktopItem } from '../types';
@@ -159,10 +160,46 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
     e.stopPropagation();
   };
 
+  // State for rename functionality
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [newName, setNewName] = useState(item.name);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const { updateItemName } = useStore();
+  
+  // Handle right click for context menu
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // We would implement a custom context menu for the icon here
+    // For now, just toggle rename mode
+    setIsRenaming(true);
+    setNewName(item.name);
+    // Focus the input after rendering
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+        inputRef.current.select();
+      }
+    }, 50);
+  };
+  
+  // Handle rename when Enter is pressed or input loses focus
+  const handleRename = (e: React.KeyboardEvent | React.FocusEvent) => {
+    if (e.type === 'keydown' && (e as React.KeyboardEvent).key !== 'Enter') {
+      return;
+    }
+    
+    if (newName.trim() && newName !== item.name) {
+      updateItemName(item.id, newName.trim());
+    }
+    setIsRenaming(false);
+  };
+
   return (
     <div
       ref={drag}
-      className="flex flex-col items-center justify-center absolute text-sm cursor-move"
+      className="flex flex-col items-center justify-center absolute text-sm cursor-grab"
       style={{
         opacity: isDragging ? 0.5 : 1,
         top: `${position.y}%`,
@@ -171,18 +208,33 @@ const DesktopIcon = ({ item }: DesktopIconProps) => {
         zIndex: isDragging ? 100 : 1,
         WebkitTouchCallout: 'none',
         transition: isDragging ? 'none' : 'opacity 0.2s ease',
+        cursor: isDragging ? 'grabbing' : 'grab',
       }}
       onDoubleClick={handleDoubleClick}
       onMouseDown={handleMouseDown}
+      onContextMenu={handleContextMenu}
     >
       <div 
         className="rendering-pixelated w-16 h-16 flex items-center justify-center bg-zinc-900 rounded-sm border border-zinc-800 hover:border-zinc-700 transition-colors shadow-sm"
       >
         {renderIcon()}
       </div>
-      <span className="max-w-full text-center text-white bg-black bg-opacity-80 px-1 py-0.5 text-xs mt-1 truncate">
-        {item.name}
-      </span>
+      {isRenaming ? (
+        <input
+          ref={inputRef}
+          type="text"
+          className="max-w-full text-center text-white bg-black border border-zinc-600 px-1 py-0.5 text-xs mt-1 focus:outline-none"
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          onKeyDown={handleRename}
+          onBlur={handleRename}
+          onClick={(e) => e.stopPropagation()}
+        />
+      ) : (
+        <span className="max-w-full text-center text-white bg-black bg-opacity-80 px-1 py-0.5 text-xs mt-1 truncate">
+          {item.name}
+        </span>
+      )}
     </div>
   );
 };
