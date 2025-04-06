@@ -119,9 +119,9 @@ const WindowComponent: React.FC<WindowProps> = ({ window }) => {
       className={`absolute font-mono pointer-events-auto border ${isActive ? 'border-zinc-600' : 'border-zinc-800'} shadow-md overflow-hidden`}
       style={{
         width: window.isMaximized ? 'calc(100% - 40px)' : window.size.width,
-        height: window.isMaximized ? 'calc(100% - 50px)' : window.size.height,
+        height: window.isMaximized ? 'calc(100% - 48px)' : window.size.height,
         left: window.isMaximized ? 20 : window.position.x,
-        top: window.isMaximized ? 10 : window.position.y,
+        top: window.isMaximized ? 40 : window.position.y, // Position below the top taskbar (8px height + spacing)
         zIndex: window.zIndex,
         backgroundColor: 'black',
       }}

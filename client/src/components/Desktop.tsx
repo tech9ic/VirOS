@@ -6,7 +6,7 @@ import WindowManager from './WindowManager';
 import TerminalWindow from './TerminalWindow';
 import { Position, DesktopItem } from '../types';
 import { v4 as uuidv4 } from 'uuid';
-import { FolderIcon, FileTextIcon, TerminalIcon } from 'lucide-react';
+import { FolderIcon, FileTextIcon, TerminalIcon, SunIcon, MoonIcon } from 'lucide-react';
 
 // Extend Window interface to include our custom property
 declare global {
@@ -16,7 +16,7 @@ declare global {
 }
 
 const Desktop = () => {
-  const { items, updateItemPosition, windows, logout, addItem, openWindow, user } = useStore();
+  const { items, updateItemPosition, windows, logout, addItem, openWindow, user, theme, toggleTheme } = useStore();
   
   // Terminal content for opening from the top bar using the TerminalWindow component
   const terminalContent = (
@@ -129,6 +129,63 @@ const Desktop = () => {
       window.removeEventListener('click', handleClick);
     };
   }, [contextMenu]);
+  
+  // Handle file drag and drop from local computer
+  useEffect(() => {
+    const handleDragOver = (e: DragEvent) => {
+      e.preventDefault(); // Allow drop
+    };
+
+    const handleDrop = (e: DragEvent) => {
+      e.preventDefault();
+      
+      if (e.dataTransfer?.files.length) {
+        const files = Array.from(e.dataTransfer.files);
+        
+        // Process each dropped file
+        files.forEach(file => {
+          // Create a new desktop item for the dropped file
+          const reader = new FileReader();
+          
+          reader.onload = (event) => {
+            const fileContent = event.target?.result as string || '';
+            
+            // Add the file to desktop items
+            const newFile: DesktopItem = {
+              id: uuidv4(),
+              name: file.name,
+              type: file.type.includes('image') ? 'image' : 'file',
+              position: {
+                // Position near drop location
+                x: Math.max(10, Math.min(90, (e.clientX / window.innerWidth) * 100)),
+                y: Math.max(10, Math.min(80, (e.clientY / window.innerHeight) * 100))
+              },
+              content: fileContent,
+              fileType: file.type
+            };
+            
+            addItem(newFile);
+          };
+          
+          // Read file content as text or URL
+          if (file.type.includes('image')) {
+            reader.readAsDataURL(file);
+          } else {
+            reader.readAsText(file);
+          }
+        });
+      }
+    };
+
+    const desktopEl = document.body;
+    desktopEl.addEventListener('dragover', handleDragOver);
+    desktopEl.addEventListener('drop', handleDrop);
+    
+    return () => {
+      desktopEl.removeEventListener('dragover', handleDragOver);
+      desktopEl.removeEventListener('drop', handleDrop);
+    };
+  }, [addItem]);
 
   // Show custom context menu
   const handleContextMenu = (e: React.MouseEvent) => {
@@ -141,27 +198,38 @@ const Desktop = () => {
 
   return (
     <div 
-      className="relative w-screen h-screen overflow-hidden bg-black font-mono" 
+      className={`relative w-screen h-screen overflow-hidden font-mono ${theme === 'dark' ? 'bg-black text-white' : 'bg-gray-100 text-black'}`}
       ref={drop} 
       onContextMenu={handleContextMenu}
     >
       {/* Top status bar - only responds to left clicks */}
       <div 
-        className="absolute top-0 left-0 right-0 h-8 bg-black flex justify-between items-center px-4 z-10 border-b border-zinc-800"
+        className={`absolute top-0 left-0 right-0 h-8 flex justify-between items-center px-4 z-10 border-b ${theme === 'dark' ? 'bg-black border-zinc-800 text-white' : 'bg-white border-gray-200 text-black'}`}
         onContextMenu={(e) => e.preventDefault()} // Prevent right-click context menu
       >
         <div 
-          className="flex items-center text-white text-xs cursor-pointer" 
+          className={`flex items-center text-xs cursor-pointer ${theme === 'dark' ? 'text-white' : 'text-black'}`}
           onClick={() => openWindow('Terminal', terminalContent)}
         >
           <TerminalIcon size={14} className="mr-1" strokeWidth={1} />
           <span className="opacity-70">_</span>
         </div>
-        <div className="flex items-center space-x-4 text-white text-xs opacity-70">
+        <div className={`flex items-center space-x-4 text-xs opacity-70 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
           <span>{formattedTime}</span>
           <button 
+            onClick={toggleTheme}
+            className={`p-1 rounded flex items-center justify-center transition-colors ${theme === 'dark' ? 'hover:bg-zinc-800' : 'hover:bg-gray-200'}`}
+            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            {theme === 'dark' ? (
+              <SunIcon size={14} className="text-yellow-400" strokeWidth={1} />
+            ) : (
+              <MoonIcon size={14} className="text-blue-300" strokeWidth={1} />
+            )}
+          </button>
+          <button 
             onClick={logout} 
-            className="px-2 py-1 rounded text-xs hover:bg-zinc-800 transition-colors"
+            className={`px-2 py-1 rounded text-xs transition-colors ${theme === 'dark' ? 'hover:bg-zinc-800' : 'hover:bg-gray-200'}`}
           >
             Logout
           </button>
@@ -182,7 +250,11 @@ const Desktop = () => {
       {/* Context Menu - with functional buttons */}
       {contextMenu.show && (
         <div 
-          className="absolute bg-black border border-zinc-800 shadow-xl z-50 text-xs py-1 text-white"
+          className={`absolute shadow-xl z-50 text-xs py-1 ${
+            theme === 'dark' 
+            ? 'bg-black border border-zinc-800 text-white' 
+            : 'bg-white border border-gray-200 text-black'
+          }`}
           style={{ 
             left: contextMenu.position.x, 
             top: contextMenu.position.y 
@@ -190,28 +262,48 @@ const Desktop = () => {
           onClick={(e) => e.stopPropagation()}
         >
           <button 
-            className="block w-full text-left px-4 py-2 hover:bg-zinc-800 transition-colors flex items-center"
+            className={`block w-full text-left px-4 py-2 transition-colors flex items-center ${
+              theme === 'dark' 
+              ? 'hover:bg-zinc-800' 
+              : 'hover:bg-gray-100'
+            }`}
             onClick={createNewFolder}
           >
-            <FolderIcon size={12} className="mr-2 text-zinc-400" strokeWidth={1} />
+            <FolderIcon size={12} className={`mr-2 ${theme === 'dark' ? 'text-zinc-400' : 'text-gray-600'}`} strokeWidth={1} />
             <span>New Folder</span>
           </button>
           <button 
-            className="block w-full text-left px-4 py-2 hover:bg-zinc-800 transition-colors flex items-center"
+            className={`block w-full text-left px-4 py-2 transition-colors flex items-center ${
+              theme === 'dark' 
+              ? 'hover:bg-zinc-800' 
+              : 'hover:bg-gray-100'
+            }`}
             onClick={createNewTextDocument}
           >
-            <FileTextIcon size={12} className="mr-2 text-zinc-400" strokeWidth={1} />
+            <FileTextIcon size={12} className={`mr-2 ${theme === 'dark' ? 'text-zinc-400' : 'text-gray-600'}`} strokeWidth={1} />
             <span>New Text Document</span>
           </button>
-          <div className="border-t border-zinc-800 my-1"></div>
-          <button className="block w-full text-left px-4 py-2 hover:bg-zinc-800 transition-colors opacity-70">
+          <div className={`border-t my-1 ${theme === 'dark' ? 'border-zinc-800' : 'border-gray-200'}`}></div>
+          <button className={`block w-full text-left px-4 py-2 transition-colors opacity-70 ${
+            theme === 'dark' 
+            ? 'hover:bg-zinc-800' 
+            : 'hover:bg-gray-100'
+          }`}>
             View
           </button>
-          <button className="block w-full text-left px-4 py-2 hover:bg-zinc-800 transition-colors opacity-70">
+          <button className={`block w-full text-left px-4 py-2 transition-colors opacity-70 ${
+            theme === 'dark' 
+            ? 'hover:bg-zinc-800' 
+            : 'hover:bg-gray-100'
+          }`}>
             Sort By
           </button>
-          <div className="border-t border-zinc-800 my-1"></div>
-          <button className="block w-full text-left px-4 py-2 hover:bg-zinc-800 transition-colors opacity-70">
+          <div className={`border-t my-1 ${theme === 'dark' ? 'border-zinc-800' : 'border-gray-200'}`}></div>
+          <button className={`block w-full text-left px-4 py-2 transition-colors opacity-70 ${
+            theme === 'dark' 
+            ? 'hover:bg-zinc-800' 
+            : 'hover:bg-gray-100'
+          }`}>
             Properties
           </button>
         </div>

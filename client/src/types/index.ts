@@ -15,7 +15,7 @@ export interface Size {
 }
 
 // Desktop item types
-export type ItemType = 'computer' | 'folder' | 'file' | 'app' | 'trash' | 'terminal';
+export type ItemType = 'computer' | 'folder' | 'file' | 'app' | 'trash' | 'terminal' | 'image';
 
 export interface DesktopItem {
   id: string;
@@ -25,6 +25,8 @@ export interface DesktopItem {
   created?: Date;  // Make created optional to support new item creation
   content?: string;
   iconSrc?: string;
+  fileType?: string; // For handling different file types when uploaded
+  parentId?: string | null; // For nested folders (null means on desktop)
 }
 
 // Window related types

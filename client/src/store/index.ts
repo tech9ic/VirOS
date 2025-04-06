@@ -10,6 +10,10 @@ interface State {
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
   
+  // Theme
+  theme: 'dark' | 'light';
+  toggleTheme: () => void;
+  
   // Desktop items
   items: DesktopItem[];
   addItem: (item: Omit<DesktopItem, 'id' | 'created'>) => string;
@@ -17,6 +21,15 @@ interface State {
   updateItemPosition: (id: string, x: number, y: number) => void;
   updateItemContent: (id: string, content: string) => void;
   updateItemName: (id: string, name: string) => void;
+  
+  // Folder management
+  getItemsByParentId: (parentId: string | null) => DesktopItem[];
+  addItemToFolder: (item: Omit<DesktopItem, 'id' | 'created'>, parentId: string) => string;
+  
+  // Buffer (recycle bin) management
+  moveToBuffer: (id: string) => void;
+  emptyBuffer: () => void;
+  getBufferItems: () => DesktopItem[];
   
   // Windows management
   windows: Window[];
@@ -94,6 +107,14 @@ export const useStore = create<State>()(
         set({ user: null, isAuthenticated: false });
       },
       
+      // Theme
+      theme: 'dark',
+      toggleTheme: () => {
+        set((state) => ({
+          theme: state.theme === 'dark' ? 'light' : 'dark'
+        }));
+      },
+      
       // Desktop items
       items: defaultItems,
       addItem: (item) => {
@@ -105,6 +126,7 @@ export const useStore = create<State>()(
               ...item,
               id,
               created: new Date(),
+              parentId: null, // Default to desktop
             },
           ],
         }));
@@ -112,7 +134,7 @@ export const useStore = create<State>()(
       },
       removeItem: (id) => {
         set((state) => ({
-          items: state.items.filter((item) => item.id !== id),
+          items: state.items.filter((item) => item.id !== id && item.parentId !== id), // Remove item and its children
         }));
       },
       updateItemPosition: (id, x, y) => {
@@ -141,6 +163,52 @@ export const useStore = create<State>()(
               : item
           ),
         }));
+      },
+      
+      // Folder management
+      getItemsByParentId: (parentId) => {
+        return get().items.filter(item => item.parentId === parentId);
+      },
+      
+      addItemToFolder: (item, parentId) => {
+        const id = uuidv4();
+        set((state) => ({
+          items: [
+            ...state.items,
+            {
+              ...item,
+              id,
+              created: new Date(),
+              parentId, // Set the parent folder ID
+              position: { x: 20, y: 20 }, // Default position within folder
+            },
+          ],
+        }));
+        return id;
+      },
+      
+      // Buffer management
+      moveToBuffer: (id) => {
+        // Mark the item as in trash (don't actually delete it)
+        set((state) => ({
+          items: state.items.map((item) =>
+            item.id === id
+              ? { ...item, parentId: 'buffer' }
+              : item
+          ),
+        }));
+      },
+      
+      emptyBuffer: () => {
+        // Truly delete all items in buffer
+        set((state) => ({
+          items: state.items.filter((item) => item.parentId !== 'buffer'),
+        }));
+      },
+      
+      getBufferItems: () => {
+        // Return all items in buffer
+        return get().items.filter(item => item.parentId === 'buffer');
       },
       
       // Windows management
@@ -239,7 +307,8 @@ export const useStore = create<State>()(
       partialize: (state) => ({
         items: state.items,
         user: state.user,
-        isAuthenticated: state.isAuthenticated
+        isAuthenticated: state.isAuthenticated,
+        theme: state.theme
       }),
     }
   )
