@@ -1,7 +1,7 @@
-# 🖥️ VirOS - A little bit of me...
+# 👾 VirOS - A little bit of me...
 
 <div align="center">
-  <img src="attached_assets/screenshot-1743956788288.png" alt="VirOS Screenshot" width="700px" />
+  <img src="attached_assets/ss.png" alt="VirOS Screenshot" width="700px" />
   <p><em>A nostalgic journey back to classic desktop computing</em></p>
 </div>
 
@@ -226,6 +226,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ---
 
 <div align="center">
-  <p>Made with ❤️ by Btech9ic</p>
+  <p>Made with ❤️ by tech9ic</p>
   <p>© 2025 VirOS Project</p>
 </div>
